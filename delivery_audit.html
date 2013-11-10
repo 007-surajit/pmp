@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Welcome to our site</title>
+    
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    
+	<link href="css/grid.css" rel="stylesheet" type="text/css" />
+	<link href="css/base.css" rel="stylesheet" type="text/css" />
+	<link href="css/style.css" rel="stylesheet" type="text/css" />
+	<script type="text/javascript" src="js/moment.min.js"></script>	
+	<script type="text/javascript" src="js/jquery.js"></script>	
+	<script type="text/javascript" src="js/html5.js"></script>
+	<script type="text/javascript" src="js/custom.js"></script>
+     <!--[if lt IE 9]>
+        <script type="text/javascript" src="http://info.template-help.com/files/ie6_warning/ie6_script_other.js"></script>
+        <script type="text/javascript" src="js/html5.js"></script>
+    <![endif]-->
+	
+</head>
+
+<body onLoad="getAuditList();">
+<div id="delivery_audit">
+<!--header-->
+<div class="container header2">
+    <div class="row-fluid">
+	<div onClick="back()" class="span2 offset1 align_center"><img src="images/menu_bg.png" alt=""></div>	
+	<div class="span6 header2_title2">Delivery Audit</div>
+	<div onClick="goTo('sclectarea')" class="span2 align_center"><img src="images/menu_bg2.png" alt=""></div>
+   </div>
+</div>
+<!--content area-->
+<div class="container contentarea2 settings" onClick="goTo('deliverycheck')" id="delivery_audit_content">	
+   <!--
+   <div class="row-fluid">	
+	   <div class="span10 offset1 delivery_audit">
+	   		<div class="row-fluid">
+				<div class="span9">
+					<ul class="delivery">
+						<li><span>Area:</span> 459</li>
+						<li><span>CW:</span>377104605</li>
+						<li><span>Walker No:</span> 123456</li>
+						<li><img src="images/icon_clock.png" alt=""> IVR Time: 02 Jul 2013 22:08</li>
+					</ul>
+				</div>
+	  			<div class="span3">
+					<ul class="audit">
+						<li><span>Dt:</span> 25</li>
+						<li><span>Cat:</span> C</li>  
+					</ul>
+				</div>
+			</div>
+	   </div>	   
+   </div>
+   
+   <div class="row-fluid">	
+	   <div class="span10 offset1 delivery_audit">
+	   		<div class="row-fluid">
+				<div class="span9">
+					<ul class="delivery">
+						<li><span>Area:</span> 459</li>
+						<li><span>CW:</span>377104605</li>
+						<li><span>Walker No:</span> 123456</li>
+						<li><img src="images/icon_clock.png" alt=""> IVR Time: 02 Jul 2013 22:08</li>
+					</ul>
+				</div>
+	  			<div class="span3">
+					<ul class="audit">
+						<li><span>Dt:</span> 25</li>
+						<li><span>Cat:</span> C</li>  
+					</ul>
+				</div>
+			</div>
+	   </div>	   
+   </div>
+   
+   <div class="row-fluid">	
+	   <div class="span10 offset1 delivery_audit">
+	   		<div class="row-fluid">
+				<div class="span9">
+					<ul class="delivery">
+						<li><span>Area:</span> 459</li>
+						<li><span>CW:</span>377104605</li>
+						<li><span>Walker No:</span> 123456</li>
+						<li><img src="images/icon_clock.png" alt=""> IVR Time: 02 Jul 2013 22:08</li>
+					</ul>
+				</div>
+	  			<div class="span3">
+					<ul class="audit">
+						<li><span>Dt:</span> 25</li>
+						<li><span>Cat:</span> C</li>  
+					</ul>
+				</div>
+			</div>
+	   </div>	   
+   </div>
+   
+   <div class="row-fluid">	
+	   <div class="span10 offset1 delivery_audit">
+	   		<div class="row-fluid">
+				<div class="span9">
+					<ul class="delivery">
+						<li><span>Area:</span> 459</li>
+						<li><span>CW:</span>377104605</li>
+						<li><span>Walker No:</span> 123456</li>
+						<li><img src="images/icon_clock.png" alt=""> IVR Time: 02 Jul 2013 22:08</li>
+					</ul>
+				</div>
+	  			<div class="span3">
+					<ul class="audit">
+						<li><span>Dt:</span> 25</li>
+						<li><span>Cat:</span> C</li>  
+					</ul>
+				</div>
+			</div>
+	   </div>	   
+   </div>
+   
+   <div class="row-fluid">	
+	   <div class="span10 offset1 delivery_audit">
+	   		<div class="row-fluid">
+				<div class="span9">
+					<ul class="delivery">
+						<li><span>Area:</span> 459</li>
+						<li><span>CW:</span>377104605</li>
+						<li><span>Walker No:</span> 123456</li>
+						<li><img src="images/icon_clock.png" alt=""> IVR Time: 02 Jul 2013 22:08</li>
+					</ul>
+				</div>
+	  			<div class="span3">
+					<ul class="audit">
+						<li><span>Dt:</span> 25</li>
+						<li><span>Cat:</span> C</li>  
+					</ul>
+				</div>
+			</div>
+	   </div>	   
+   </div>
+   
+   <div class="row-fluid">	
+	   <div class="span10 offset1 delivery_audit">
+	   		<div class="row-fluid">
+				<div class="span9">
+					<ul class="delivery">
+						<li><span>Area:</span> 459</li>
+						<li><span>CW:</span>377104605</li>
+						<li><span>Walker No:</span> 123456</li>
+						<li><img src="images/icon_clock.png" alt=""> IVR Time: 02 Jul 2013 22:08</li>
+					</ul>
+				</div>
+	  			<div class="span3">
+					<ul class="audit">
+						<li><span>Dt:</span> 25</li>
+						<li><span>Cat:</span> C</li>  
+					</ul>
+				</div>
+			</div>
+	   </div>	   
+   </div>
+    -->       
+</div>
+
+<div id ="audit_template" style="display:none">
+	  <div class="row-fluid">	
+	   <div class="span10 offset1 delivery_audit">
+	   		<div class="row-fluid">
+				<div class="span9">
+					<ul class="delivery">
+						<li><span>Area:</span> {{DIST_NR}}</li>
+						<li><span>CW:</span>{{CONT_INV_NR}}</li>
+						<li><span>Walker No:</span> {{CONT_NR}}</li>
+						<li><img src="images/icon_clock.png" alt=""> IVR Time: {{IVR_SERV_DTIME}}</li>
+					</ul>
+				</div>
+	  			<div class="span3">
+					<ul class="audit">
+						<li><span>Dt:</span> {{DEL_TERR_CD}}</li>
+						<li><span>Cat:</span> C</li>  
+					</ul>
+				</div>
+			</div>
+	   </div>	   
+	  </div> 
+   </div>
+
+<!--footer-->
+<div class="container footer">
+    <div class="row-fluid">
+	<div class="footer_icon1" onClick="popUpDelivery()"><span>Catalogue-</span>20</div>	
+	<div class="footer_icon3 here" onClick="javascript:getAuditList()">Refresh</div>
+   </div>
+</div>
+
+</div>
+
+<!--Audit Popup-->
+<div id="audit_popup" style="display:none">
+	<div class="container">
+	 <div class="row-fluid">
+	  <div class="span10 offset1 alert_confirmation delivery_audit_popup">	
+	  	  <div class="cross" onClick="closePopUp()"></div>
+	 	  <div class="calagory"><span class="icon1"></span>All</div>
+		  <div class="calagory"><span class="icon2"></span>Catalogue</div>
+		  <div class="calagory"><span class="icon3"></span>News</div>
+		  <div class="calagory"><span class="icon4"></span>Address</div>
+		  <div class="calagory"><span class="icon5"></span>Query</div>						
+	   </div>
+	  </div>	 
+	</div>
+</div>
+
+<!--Loader-->
+<div id="loader" style="display:none">
+  <div class="container" id="custom" style="margin-top:250px">
+	 <div class="row-fluid" >	 
+	  <div class="span10 offset5">		 	
+			<img src="images/loadinfo.gif" />						
+	  </div>
+	 </div>	 
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Welcome to our site</title>
+    
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    
+	<link href="css/grid.css" rel="stylesheet" type="text/css" />
+	<link href="css/base.css" rel="stylesheet" type="text/css" />
+	<link href="css/style.css" rel="stylesheet" type="text/css" />
+	<script type="text/javascript" src="js/jquery.js"></script>	
+	<script type="text/javascript" src="js/html5.js"></script>
+    <script type="text/javascript" src="js/custom.js"></script>
+     <!--[if lt IE 9]>
+        <script type="text/javascript" src="http://info.template-help.com/files/ie6_warning/ie6_script_other.js"></script>
+        <script type="text/javascript" src="js/html5.js"></script>
+    <![endif]-->
+	
+</head>
+
+<body onLoad="getQueryList()">
+<div id="query">
+<!--header-->
+<div class="container header2">
+    <div class="row-fluid">
+	<div class="span2 offset1 align_center"><img onClick="back()" src="images/menu_bg.png" alt=""></div>	
+	<div class="span6 header2_title2">Queries</div>
+	<div class="span2 align_center"><img onClick="goTo('sclectarea')" src="images/menu_bg2.png" alt=""></div>
+   </div>
+</div>
+<!--content area-->
+<div class="container contentarea2 query" onClick="goTo('querydetail')" id="query_content">
+   <!--<div class="row-fluid">	
+	   <div class="span10 offset1 query_area">
+	   		<div class="row-fluid">
+				<div class="span8">
+					<ul class="queryl">
+						<li><span>Query No:</span> {{QUERY_NR}}</li>
+						<li><span>Date Window:</span>10 Aug 2010</li>
+						<li><span>Area:</span> {{DIST_NR}}</li>
+						<li><span>Desc:</span> {{QUERY_DETAIL}}</li>
+					</ul>
+				</div>
+	  			<div class="span4">
+					<ul class="queryr">
+						<li><span>Job No:</span> {{QUERY_JOB_NR}}</li>
+						<li><span>Dt:</span> 26</li> 
+					</ul>
+				</div>
+			</div>			
+	   </div>
+   </div>-->           
+</div>
+
+<div id="query_template" style="display:none">
+    <div class="row-fluid">	
+	   <div class="span10 offset1 query_area">
+	   		<div class="row-fluid">
+				<div class="span8">
+					<ul class="queryl">
+						<li><span>Query No:</span> {{QUERY_NR}}</li>
+						<li><span>Date Window:</span>10 Aug 2010</li>
+						<li><span>Area:</span> {{DIST_NR}}</li>
+						<li><span>Desc:</span> {{QUERY_DETAIL}}</li>
+					</ul>
+				</div>
+	  			<div class="span4">
+					<ul class="queryr">
+						<li><span>Job No:</span> {{QUERY_JOB_NR}}</li>
+						<li><span>Dt:</span> 26</li> 
+					</ul>
+				</div>
+			</div>			
+	   </div>
+    </div>
+</div>
+
+<!--footer-->
+<div class="container footer">
+    <div class="row-fluid">
+	<div class="footer_icon2"><span>Query-</span>20</div>	
+	<div class="footer_icon3" onClick="getQueryList()">Refresh</div>
+   </div>
+</div>
+</div>
+
+<!--Loader-->
+<div id="loader" style="display:none">
+  <div class="container" id="custom" style="margin-top:250px">
+	 <div class="row-fluid" >	 
+	  <div class="span10 offset5">		 	
+			<img src="images/loadinfo.gif" />						
+	  </div>
+	 </div>	 
+  </div>
+</div>
+
+</body>
+</html>
