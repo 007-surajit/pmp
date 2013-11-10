@@ -87,8 +87,12 @@ function login()
       },
       error: function(jqXHR, textStatus, errorThrown)
       {
-            //if fails
-			alert('error');			
+        hideLoader();
+		if(navigator.notification) {
+			navigator.notification.alert("Network Connection Error "+errorThrown, null, 'PMP', 'Ok');
+		}else{
+			alert("Network Connection Error "+errorThrown);
+		}			
       }	  
 	});	
 }
