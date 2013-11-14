@@ -108,7 +108,7 @@ function getAuditList()
 {
 	
 	showLoader();
-	$("#delivery_audit").css({'background': 'url(images/tr_bg1.png)', 'height': $(this).height()});
+	//$("#delivery_audit").css({'background': 'url(images/tr_bg1.png)', 'height': $(this).height()});
 	
 	/*
 				“cont_nr”  => Walker No,
@@ -179,7 +179,7 @@ function getOutstandingJobs()
 {
 	/*	Sample:{"to_ivr":[{"cont_nr":2203242,"del_terr_cd":90,"cont_inv_nr":377147913,"dist_nr":2203247,"first_nm":"Sergio","last_nm":"Rossi","old_cont_inv_nr":null,"start_dtime":"\/Date(1382360400000)\/","end_dtime":"\/Date(1382446800000)\/","dist_net_cd":"C","batch":179494,"area_cd":290}]}	
 	*/
-	$("#Outstandingjob").css({'background': 'url(images/tr_bg1.png)', 'height': $(this).height()});
+	//$("#Outstandingjob").css({'background': 'url(images/tr_bg1.png)', 'height': $(this).height()});
 	showLoader();
 	
 	$.ajax({
@@ -241,7 +241,7 @@ function getQueryList()
 	{"queries_to_pda":[{"query_nr":728335,"dist_nr":3050234,"dist_net_cd":"N","query_job_nr":721795,"query_job_desc":"Job 721795 HOBSONS BAY LEADER [08 Oct 2013 to 09 Oct 2013] for 10 Oct 2013","query_job_dtime":"\/Date(1381064400000)\/","query_reported_dtime":"\/Date(1381804613240)\/","query_area_details":"159/24","query_type_desc":"Non delivery","query_detail":"no delivery for 3 years -|- Please investigate and respond within 72 hours. Thanks.","str_nr":"11/76","str_nm":"POINT COOK","str_type_cd":"RD","sub_nm":"SEABROOK","pc_cd":"3028","batch":141007}]}	
 	*/
 	
-	$("#query").css({'background': 'url(images/tr_bg1.png)', 'height': $(this).height()});
+	//$("#query").css({'background': 'url(images/tr_bg1.png)', 'height': $(this).height()});
 	showLoader();
 	
 	$.ajax({
