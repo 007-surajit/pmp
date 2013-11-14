@@ -154,6 +154,8 @@ hr {
 }
 #settings, #Outstandingjob, #query, #delivery_audit{
 	background:  url(../images/tr_bg1.png);
+	min-height:100%;
+	overflow-y:scroll;
 }
 .settings .settings_icon img{
 	vertical-align: middle;
