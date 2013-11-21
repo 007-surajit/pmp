@@ -172,14 +172,20 @@ function login()
 
 function logout()
 {
-	localStorage.removeItem("dist_nr");
+	//localStorage.removeItem("dist_nr");
+	localStorage.clear();
 	setTimeout(function(){document.location = "index.html";});
 }
 
 
+function isBigEnough(element) {
+  return element >= 10;
+}
+var filtered = [12, 5, 8, 130, 44].filter(isBigEnough);
+
 function getAuditList()
 {
-	
+	localStorage.setItem("screen","delivery_audit");
 	showLoader();
 	var selectAreaList = new Array();
 	//$("#delivery_audit").css({'background': 'url(images/tr_bg1.png)', 'height': $(this).height()});
@@ -204,15 +210,16 @@ function getAuditList()
 			//console.log(data.hasOwnProperty("dist_nrr"));from_ivr
 			
 			/*data= {"from_ivr":[{"cont_nr":9808236,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9806236,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9808636,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9908636,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9918636,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9918736,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9918746,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9919746,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9919746,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9919746,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9919746,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null}]};*/
-			
-			
+						
 			if(data.from_ivr.length)
 			{
+				
 				var audit_template_html = $("#audit_template").html();
 
 				//console.log(audit_template_html);
 				var html = "";
 				var tempHTML = "";
+				var catalogCount = 0;
 				$.each(data.from_ivr, function(i,audits){
 					//console.log(JSON.stringify(audits));
 					tempHTML =  audit_template_html;
@@ -222,15 +229,23 @@ function getAuditList()
 					tempHTML = tempHTML.replace(/{{IVR_SERV_DTIME}}/gi, moment(audits.ivr_serv_dtime).format("DD MMM YYYY HH:mm"));
 					tempHTML = tempHTML.replace(/{{DEL_TERR_CD}}/gi, audits.del_terr_cd);
 					
-					if(selectAreaList.indexOf(audits.area_cd) == -1) {
-						selectAreaList.push(audits.area_cd);
+					if(localStorage.getItem("delivery_filter")== null) {
+						
+						if(selectAreaList.indexOf(audits.area_cd) == -1) {
+							selectAreaList.push(audits.area_cd);
+						}
+						localStorage.setItem("deliverySelectAreaList",JSON.stringify(selectAreaList));
+						//tempHTML = tempHTML.replace(/{{DIST_NR}}/gi, audits.dist_nr);
+						html += tempHTML;
+						catalogCount++;
+					}else if(audits.area_cd == localStorage.getItem("delivery_filter")) {
+						html += tempHTML;
+						catalogCount++
 					}
 					
-					//tempHTML = tempHTML.replace(/{{DIST_NR}}/gi, audits.dist_nr);
-					html += tempHTML;
 				});
 				
-				localStorage.setItem("selectAreaList",JSON.stringify(selectAreaList));
+				$("#catalog_count").html(catalogCount);
 				$("#delivery_audit_content").html( html );
 				hideLoader();
 				
@@ -246,6 +261,7 @@ function getAuditList()
       error: function(jqXHR, textStatus, errorThrown)
       {
             //if fails
+		hideLoader();
 		if(navigator.notification) {
 			navigator.notification.alert("Network Connection Error "+errorThrown, function(){history.back()}, 'PMP', 'Ok');
 		}else{
@@ -268,9 +284,7 @@ function deliveryCheck(walker_no,cw,dt,area)
 }
 
 function getAuditDetail()
-{
-	
-	
+{	
 	var audit_detail_html = $("#audit_detail").html();
 
 	var tempHTML = audit_detail_html;
@@ -281,7 +295,6 @@ function getAuditDetail()
 	tempHTML = tempHTML.replace(/{{DIST_NR}}/gi, localStorage.getItem("AUDIT_AREA"));
 	
 	$("#audit_detail").html(tempHTML);	
-	
 }
 
 function getOutstandingJobs()
@@ -289,6 +302,8 @@ function getOutstandingJobs()
 	/*	Sample:{"to_ivr":[{"cont_nr":2203242,"del_terr_cd":90,"cont_inv_nr":377147913,"dist_nr":2203247,"first_nm":"Sergio","last_nm":"Rossi","old_cont_inv_nr":null,"start_dtime":"\/Date(1382360400000)\/","end_dtime":"\/Date(1382446800000)\/","dist_net_cd":"C","batch":179494,"area_cd":290}]}	
 	*/
 	//$("#Outstandingjob").css({'background': 'url(images/tr_bg1.png)', 'height': $(this).height()});
+	
+	localStorage.setItem("screen","Outstandingjob");
 	showLoader();
 		
 	var selectAreaList = new Array();
@@ -323,16 +338,19 @@ function getOutstandingJobs()
 					tempHTML = tempHTML.replace(/{{DEL_TERR_CD}}/gi, outstandingJobs.del_terr_cd);
 					tempHTML = tempHTML.replace(/{{DIST_NET_CD}}/gi, outstandingJobs.dist_net_cd);
 					
-					if(selectAreaList.indexOf(outstandingJobs.area_cd) == -1) {
-						selectAreaList.push(outstandingJobs.area_cd);
+					if(localStorage.getItem("outstandingjob_filter")== null) {					
+						if(selectAreaList.indexOf(outstandingJobs.area_cd) == -1) {
+							selectAreaList.push(outstandingJobs.area_cd);
+						}
+						localStorage.setItem("outstandingJobSelectAreaList",JSON.stringify(selectAreaList));
+						html += tempHTML;
+					}else if(outstandingJobs.area_cd == localStorage.getItem("outstandingjob_filter")) {
+						html += tempHTML;											
 					}
-					
-					html += tempHTML;
 				});
 				$("#outstanding_jobs_content").html( html );
 				hideLoader();
-				//console.log(selectAreaList);
-				localStorage.setItem("selectAreaList",JSON.stringify(selectAreaList));
+				//console.log(selectAreaList);				
 				//console.log('Local Storage '+localStorage.getItem("selectAreaList"));
 				
 			}else {			
@@ -347,6 +365,7 @@ function getOutstandingJobs()
       error: function(jqXHR, textStatus, errorThrown)
       {
         //if fails
+		hideLoader();
 		if(navigator.notification) {
 			navigator.notification.alert("Network Connection Error "+errorThrown, function(){history.back()}, 'PMP', 'Ok');
 		}else{
@@ -357,14 +376,42 @@ function getOutstandingJobs()
 }
 
 function populateSelectList()
-{	
+{		
+	var selectArray = new Array();
 	
-	var selectArray = localStorage.getItem("selectAreaList");
-	
+	if(localStorage.getItem('screen')== 'delivery_audit') {
+		selectArray = localStorage.getItem("deliverySelectAreaList");
+	}else if(localStorage.getItem('screen')== 'Query') {
+		selectArray = localStorage.getItem("querySelectAreaList");
+	}else if(localStorage.getItem('screen')== 'Outstandingjob') {
+		selectArray = localStorage.getItem("outstandingJobSelectAreaList");
+	}	
 	$.each(JSON.parse(selectArray), function(i,area){	
 		
-		$("#select_area_list").append('<div class="row-fluid"><div class="span10 offset1 area_list">'+area+'</div></div>');		
-	});
+		$("#select_area_list").append('<div class="row-fluid"><div class="span10 offset1 area_list" onClick="filterData('+area+')">'+area+'</div></div>');		
+	});	
+}
+
+function filterData(area)
+{
+    if(area != 'all') {
+	    if(localStorage.getItem('screen')== 'delivery_audit') {
+			localStorage.setItem('delivery_filter',area);
+		}else if(localStorage.getItem('screen')== 'Query') {
+			localStorage.setItem('query_filter',area);
+		}else if(localStorage.getItem('screen')== 'Outstandingjob') {
+			localStorage.setItem('outstandingjob_filter',area);
+		}		
+	}else{
+		if(localStorage.getItem('screen')== 'delivery_audit') {
+			localStorage.removeItem('delivery_filter');
+		}else if(localStorage.getItem('screen')== 'Query') {
+			localStorage.removeItem('query_filter');
+		}else if(localStorage.getItem('screen')== 'Outstandingjob') {
+			localStorage.removeItem('outstandingjob_filter');
+		}
+	}
+	goTo(localStorage.getItem('screen'));
 	
 }
 
@@ -375,6 +422,7 @@ function getQueryList()
 	*/
 	
 	//$("#query").css({'background': 'url(images/tr_bg1.png)', 'height': $(this).height()});
+	localStorage.setItem("screen","Query");
 	showLoader();
 	
 	var selectAreaList = new Array();
@@ -393,29 +441,37 @@ function getQueryList()
 			
 			if(data.queries_to_pda && data.queries_to_pda.length)
 			{
-				$("#query_count").html(data.queries_to_pda.length);
+				
 				
 				var query_template = $("#query_template").html();
 
 				//console.log(audit_template_html);
 				var html = "";
 				var tempHTML = "";
+				var queryCount = 0;
 				$.each(data.queries_to_pda, function(i,query){
 					//console.log(JSON.stringify(audits));
 					tempHTML =  query_template;
 					tempHTML = tempHTML.replace(/{{QUERY_NR}}/gi, query.query_nr);
 					tempHTML = tempHTML.replace(/{{DIST_NR}}/gi, query.dist_nr);
-					tempHTML = tempHTML.replace(/{{QUERY_DETAIL}}/gi, query.query_detail);	
+					tempHTML = tempHTML.replace(/{{QUERY_DETAIL}}/gi, query.query_detail);
+					tempHTML = tempHTML.replace(/{{QUERY_JOB_NR}}/gi, query.query_job_nr);					
 
-					if(selectAreaList.indexOf(query.dist_nr) == -1) {
-						selectAreaList.push(query.dist_nr);
-					}
-					
-					//tempHTML = tempHTML.replace(/{{DEL_TERR_CD}}/gi, query.del_terr_cd);
-					tempHTML = tempHTML.replace(/{{QUERY_JOB_NR}}/gi, query.query_job_nr);
-					html += tempHTML;
+					if(localStorage.getItem("query_filter")== null) {					
+						if(selectAreaList.indexOf(query.dist_nr) == -1) {
+							selectAreaList.push(query.dist_nr);
+						}
+						localStorage.setItem("querySelectAreaList",JSON.stringify(selectAreaList));
+						html += tempHTML;
+						queryCount++;
+					}else if(query.dist_nr == localStorage.getItem("query_filter")) {
+						html += tempHTML;
+						queryCount++;
+											
+					}					
+					//tempHTML = tempHTML.replace(/{{DEL_TERR_CD}}/gi, query.del_terr_cd);					
 				});
-				localStorage.setItem("selectAreaList",JSON.stringify(selectAreaList));
+                $("#query_count").html(queryCount);				
 				$("#query_content").html( html );
 				hideLoader();
 				
@@ -431,6 +487,7 @@ function getQueryList()
       error: function(jqXHR, textStatus, errorThrown)
       {
         //if fails
+		hideLoader();
 		if(navigator.notification) {
 			navigator.notification.alert("Network Connection Error "+errorThrown, function(){history.back()}, 'PMP', 'Ok');
 		}else{

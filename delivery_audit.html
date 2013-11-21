@@ -26,7 +26,7 @@
 <!--header-->
 <div class="container header2">
     <div class="row-fluid">
-	<div onClick="back()" class="span2 offset1 align_center"><img src="images/menu_bg.png" alt=""></div>	
+	<div onClick="goTo('menu')" class="span2 offset1 align_center"><img src="images/menu_bg.png" alt=""></div>	
 	<div class="span6 header2_title2">Delivery Audit</div>
 	<div onClick="goTo('sclectarea')" class="span2 align_center"><img src="images/menu_bg2.png" alt=""></div>
    </div>
@@ -69,7 +69,7 @@
 						<li><span>Walker No:</span> {{CONT_NR}}</li>
 						<li><img src="images/icon_clock.png" alt=""> IVR Time: {{IVR_SERV_DTIME}}</li>
 					</ul>
-				</div>uuuu
+				</div>
 	  			<div class="span3">
 					<ul class="audit">
 						<li><span>Dt:</span> {{DEL_TERR_CD}}</li>
@@ -84,7 +84,7 @@
 <!--footer-->
 <div class="container footer">
     <div class="row-fluid">
-	<div class="footer_icon1" onClick="popUpDelivery()"><span>Catalogue-</span>20</div>	
+	<div class="footer_icon1" onClick="popUpDelivery()"><span>Catalogue-</span><span id="catalog_count">&nbsp;</span></div>	
 	<div class="footer_icon3" onClick="javascript:getAuditList()">Refresh</div>
    </div>
 </div>
