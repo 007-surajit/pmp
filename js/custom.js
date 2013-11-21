@@ -181,6 +181,7 @@ function getAuditList()
 {
 	
 	showLoader();
+	var selectAreaList = new Array();
 	//$("#delivery_audit").css({'background': 'url(images/tr_bg1.png)', 'height': $(this).height()});
 	
 	/*
@@ -220,10 +221,16 @@ function getAuditList()
 					tempHTML = tempHTML.replace(/{{CONT_NR}}/gi, audits.cont_nr);		
 					tempHTML = tempHTML.replace(/{{IVR_SERV_DTIME}}/gi, moment(audits.ivr_serv_dtime).format("DD MMM YYYY HH:mm"));
 					tempHTML = tempHTML.replace(/{{DEL_TERR_CD}}/gi, audits.del_terr_cd);
+					
+					if(selectAreaList.indexOf(audits.area_cd) == -1) {
+						selectAreaList.push(audits.area_cd);
+					}
+					
 					//tempHTML = tempHTML.replace(/{{DIST_NR}}/gi, audits.dist_nr);
 					html += tempHTML;
 				});
-
+				
+				localStorage.setItem("selectAreaList",JSON.stringify(selectAreaList));
 				$("#delivery_audit_content").html( html );
 				hideLoader();
 				
@@ -282,7 +289,9 @@ function getOutstandingJobs()
 	/*	Sample:{"to_ivr":[{"cont_nr":2203242,"del_terr_cd":90,"cont_inv_nr":377147913,"dist_nr":2203247,"first_nm":"Sergio","last_nm":"Rossi","old_cont_inv_nr":null,"start_dtime":"\/Date(1382360400000)\/","end_dtime":"\/Date(1382446800000)\/","dist_net_cd":"C","batch":179494,"area_cd":290}]}	
 	*/
 	//$("#Outstandingjob").css({'background': 'url(images/tr_bg1.png)', 'height': $(this).height()});
-	showLoader();	
+	showLoader();
+		
+	var selectAreaList = new Array();
 	
 	$.ajax({
 	  url: "https://support.mobiliseit.com/PMP/PDAservice.asmx/GetToIvrByManager",
@@ -313,10 +322,18 @@ function getOutstandingJobs()
 					
 					tempHTML = tempHTML.replace(/{{DEL_TERR_CD}}/gi, outstandingJobs.del_terr_cd);
 					tempHTML = tempHTML.replace(/{{DIST_NET_CD}}/gi, outstandingJobs.dist_net_cd);
+					
+					if(selectAreaList.indexOf(outstandingJobs.area_cd) == -1) {
+						selectAreaList.push(outstandingJobs.area_cd);
+					}
+					
 					html += tempHTML;
 				});
 				$("#outstanding_jobs_content").html( html );
 				hideLoader();
+				//console.log(selectAreaList);
+				localStorage.setItem("selectAreaList",JSON.stringify(selectAreaList));
+				//console.log('Local Storage '+localStorage.getItem("selectAreaList"));
 				
 			}else {			
 				if(navigator.notification) {
@@ -339,6 +356,18 @@ function getOutstandingJobs()
 	});
 }
 
+function populateSelectList()
+{	
+	
+	var selectArray = localStorage.getItem("selectAreaList");
+	
+	$.each(JSON.parse(selectArray), function(i,area){	
+		
+		$("#select_area_list").append('<div class="row-fluid"><div class="span10 offset1 area_list">'+area+'</div></div>');		
+	});
+	
+}
+
 function getQueryList()
 {
 	/*
@@ -347,6 +376,8 @@ function getQueryList()
 	
 	//$("#query").css({'background': 'url(images/tr_bg1.png)', 'height': $(this).height()});
 	showLoader();
+	
+	var selectAreaList = new Array();
 	
 	$.ajax({
 	  url: "https://support.mobiliseit.com/PMP/PDAservice.asmx/GetQueryToPdaByManager",
@@ -374,12 +405,17 @@ function getQueryList()
 					tempHTML =  query_template;
 					tempHTML = tempHTML.replace(/{{QUERY_NR}}/gi, query.query_nr);
 					tempHTML = tempHTML.replace(/{{DIST_NR}}/gi, query.dist_nr);
-					tempHTML = tempHTML.replace(/{{QUERY_DETAIL}}/gi, query.query_detail);		
+					tempHTML = tempHTML.replace(/{{QUERY_DETAIL}}/gi, query.query_detail);	
+
+					if(selectAreaList.indexOf(query.dist_nr) == -1) {
+						selectAreaList.push(query.dist_nr);
+					}
 					
 					//tempHTML = tempHTML.replace(/{{DEL_TERR_CD}}/gi, query.del_terr_cd);
 					tempHTML = tempHTML.replace(/{{QUERY_JOB_NR}}/gi, query.query_job_nr);
 					html += tempHTML;
 				});
+				localStorage.setItem("selectAreaList",JSON.stringify(selectAreaList));
 				$("#query_content").html( html );
 				hideLoader();
 				

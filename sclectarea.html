@@ -10,6 +10,7 @@
 	<link href="css/grid.css" rel="stylesheet" type="text/css" />
 	<link href="css/base.css" rel="stylesheet" type="text/css" />
 	<link href="css/style.css" rel="stylesheet" type="text/css" />
+	<script type="text/javascript" src="js/jquery.js"></script>	
 	<script type="text/javascript" src="js/html5.js"></script>
 	<script type="text/javascript" src="js/custom.js"></script>
 
@@ -20,7 +21,7 @@
 	
 </head>
 
-<body>
+<body onLoad="populateSelectList()">
 <div id="selectarea">
 <!--header-->
 <div class="container header2">
@@ -30,11 +31,12 @@
 </div>
 
 <!--content area-->
-<div class="container contentarea2 settings">
+<div class="container contentarea2 settings" id="select_area_list">
     <div class="row-fluid">	
-	   <div class="span10 offset1 area_list"> All area </div>	   
+	   <div class="span10 offset1 area_list here"> All area </div>	   
    </div>
-    <div class="row-fluid">	
+    <!--
+	<div class="row-fluid">	
 	   <div class="span10 offset1 area_list here"> 452 </div>	   
    </div>
     <div class="row-fluid">	
@@ -51,7 +53,8 @@
    </div>
     <div class="row-fluid">	
 	   <div class="span10 offset1 area_list"> 447 </div>	   
-   </div>
+   </div>   
+   -->
          
 </div>
 </div>
