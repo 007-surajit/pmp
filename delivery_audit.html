@@ -32,7 +32,7 @@
    </div>
 </div>
 <!--content area-->
-<div class="container contentarea2 settings" onClick="goTo('deliverycheck')" id="delivery_audit_content">	
+<div class="container contentarea2 settings" id="delivery_audit_content">	
    <!--
    <div class="row-fluid">	
 	   <div class="span10 offset1 delivery_audit">
@@ -53,117 +53,13 @@
 				</div>
 			</div>
 	   </div>	   
-   </div>
+   </div>  
    
-   <div class="row-fluid">	
-	   <div class="span10 offset1 delivery_audit">
-	   		<div class="row-fluid">
-				<div class="span9">
-					<ul class="delivery">
-						<li><span>Area:</span> 459</li>
-						<li><span>CW:</span>377104605</li>
-						<li><span>Walker No:</span> 123456</li>
-						<li><img src="images/icon_clock.png" alt=""> IVR Time: 02 Jul 2013 22:08</li>
-					</ul>
-				</div>
-	  			<div class="span3">
-					<ul class="audit">
-						<li><span>Dt:</span> 25</li>
-						<li><span>Cat:</span> C</li>  
-					</ul>
-				</div>
-			</div>
-	   </div>	   
-   </div>
-   
-   <div class="row-fluid">	
-	   <div class="span10 offset1 delivery_audit">
-	   		<div class="row-fluid">
-				<div class="span9">
-					<ul class="delivery">
-						<li><span>Area:</span> 459</li>
-						<li><span>CW:</span>377104605</li>
-						<li><span>Walker No:</span> 123456</li>
-						<li><img src="images/icon_clock.png" alt=""> IVR Time: 02 Jul 2013 22:08</li>
-					</ul>
-				</div>
-	  			<div class="span3">
-					<ul class="audit">
-						<li><span>Dt:</span> 25</li>
-						<li><span>Cat:</span> C</li>  
-					</ul>
-				</div>
-			</div>
-	   </div>	   
-   </div>
-   
-   <div class="row-fluid">	
-	   <div class="span10 offset1 delivery_audit">
-	   		<div class="row-fluid">
-				<div class="span9">
-					<ul class="delivery">
-						<li><span>Area:</span> 459</li>
-						<li><span>CW:</span>377104605</li>
-						<li><span>Walker No:</span> 123456</li>
-						<li><img src="images/icon_clock.png" alt=""> IVR Time: 02 Jul 2013 22:08</li>
-					</ul>
-				</div>
-	  			<div class="span3">
-					<ul class="audit">
-						<li><span>Dt:</span> 25</li>
-						<li><span>Cat:</span> C</li>  
-					</ul>
-				</div>
-			</div>
-	   </div>	   
-   </div>
-   
-   <div class="row-fluid">	
-	   <div class="span10 offset1 delivery_audit">
-	   		<div class="row-fluid">
-				<div class="span9">
-					<ul class="delivery">
-						<li><span>Area:</span> 459</li>
-						<li><span>CW:</span>377104605</li>
-						<li><span>Walker No:</span> 123456</li>
-						<li><img src="images/icon_clock.png" alt=""> IVR Time: 02 Jul 2013 22:08</li>
-					</ul>
-				</div>
-	  			<div class="span3">
-					<ul class="audit">
-						<li><span>Dt:</span> 25</li>
-						<li><span>Cat:</span> C</li>  
-					</ul>
-				</div>
-			</div>
-	   </div>	   
-   </div>
-   
-   <div class="row-fluid">	
-	   <div class="span10 offset1 delivery_audit">
-	   		<div class="row-fluid">
-				<div class="span9">
-					<ul class="delivery">
-						<li><span>Area:</span> 459</li>
-						<li><span>CW:</span>377104605</li>
-						<li><span>Walker No:</span> 123456</li>
-						<li><img src="images/icon_clock.png" alt=""> IVR Time: 02 Jul 2013 22:08</li>
-					</ul>
-				</div>
-	  			<div class="span3">
-					<ul class="audit">
-						<li><span>Dt:</span> 25</li>
-						<li><span>Cat:</span> C</li>  
-					</ul>
-				</div>
-			</div>
-	   </div>	   
-   </div>
     -->       
 </div>
 
 <div id ="audit_template" style="display:none">
-	  <div class="row-fluid">	
+	  <div class="row-fluid" onClick="deliveryCheck('{{CONT_NR}}','{{CONT_INV_NR}}','{{DEL_TERR_CD}}','{{DIST_NR}}')">	
 	   <div class="span10 offset1 delivery_audit">
 	   		<div class="row-fluid">
 				<div class="span9">
@@ -177,7 +73,7 @@
 	  			<div class="span3">
 					<ul class="audit">
 						<li><span>Dt:</span> {{DEL_TERR_CD}}</li>
-						<li><span>Cat:</span> C</li>  
+						<li><span>Cat:</span> NA</li>  
 					</ul>
 				</div>
 			</div>

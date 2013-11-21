@@ -10,15 +10,21 @@ function back()
 	history.back();
 }
 
-function popUp()
+function popUp(dt,cw,cont_nr,dist_nr)
 {
-	//var overlay = jQuery('<div id="overlay"> </div>');
-	//overlay.appendTo(document.body);
-	var d1 = document.getElementById('Outstandingjob');
-    var d2 = document.getElementById('confirmation');	
-	//d1.insertAdjacentHTML('afterend', '<div id="overlay"> </div>');
-	//alert(d2.innerHTML);
-	if(document.getElementById('overlay') == null) {
+	$('span.del_terr_cd').html(dt);
+	$('span.cont_inv_nr').html(cw);
+	
+	localStorage.setItem("JOB_DEL_TERR_CD",dt);
+	localStorage.setItem("JOB_CONT_INV_NR",cw);	
+	localStorage.setItem("JOB_CONT_NR",cont_nr);
+	localStorage.setItem("JOB_DIST_NR",dist_nr);	
+	
+	var d1 = document.getElementById('Outstandingjob');    
+    
+	var d2 = document.getElementById('confirmation');	
+	
+	if(document.getElementById('overlay') == null) {		
 		d1.insertAdjacentHTML('afterend', '<div id="overlay">'+d2.innerHTML+'</div>');
 	}else{
 		document.getElementById('overlay').style.display='block';
@@ -58,6 +64,54 @@ function popUpDelivery()
 function closePopUp()
 {
 	document.getElementById('overlay').style.display='none';
+}
+
+function markJobAsComplete()
+{
+	console.log('del_terr_cd'+$('span.del_terr_cd').first().html());
+	console.log('cont_inv_nr'+$('span.cont_inv_nr').first().html());
+	showLoader();
+	//var UTCstring = (new Date()).toUTCString();
+	//console.log(UTCstring);	
+    $.ajax({
+	  url: "https://support.mobiliseit.com/PMP/PDAservice.asmx/markCompleted",
+	  type: "POST",
+	  data: {cont_nr: localStorage.getItem("JOB_CONT_NR"), cont_inv_nr: localStorage.getItem("JOB_CONT_INV_NR"), del_terr_cd: localStorage.getItem("JOB_DEL_TERR_CD"), dist_nr: localStorage.getItem("JOB_DIST_NR"), utcTime: (new Date()).toUTCString()},
+	  success:function(data, textStatus, jqXHR)
+	  {
+		//hideLoader();
+		closePopUp();
+		getOutstandingJobs();
+		//console.log(data.hasOwnProperty("dist_nrr"));
+		//console.log(JSON.stringify(data));
+		/*if(data.hasOwnProperty("dist_nr"))
+		{
+			
+			localStorage.setItem("dist_nr",data.dist_nr);
+			//console.log('Distributor number is '+localStorage.getItem("dist_nr"));
+			setTimeout(function(){goTo('menu');});
+			
+		}else {
+			//alert(data.Exception.Message);
+			if(navigator.notification) {
+				navigator.notification.alert(data.Exception.Message, null, 'PMP', 'Ok');
+			}else{
+				alert(data.Exception.Message);
+			}	
+
+		}*/
+	  },
+	  error: function(jqXHR, textStatus, errorThrown)
+	  {
+		 hideLoader();
+		 closePopUp();
+		 if(navigator.notification) {
+			navigator.notification.alert("Network Connection Error "+errorThrown, null, 'PMP', 'Ok');
+		 }else{
+			alert("Network Connection Error "+errorThrown);
+		 }			
+	   }	  
+	});
 }
 
 function login()
@@ -161,7 +215,7 @@ function getAuditList()
 				$.each(data.from_ivr, function(i,audits){
 					//console.log(JSON.stringify(audits));
 					tempHTML =  audit_template_html;
-					tempHTML = tempHTML.replace(/{{DIST_NR}}/gi, audits.dist_nr);
+					tempHTML = tempHTML.replace(/{{DIST_NR}}/gi, audits.area_cd);
 					tempHTML = tempHTML.replace(/{{CONT_INV_NR}}/gi, audits.cont_inv_nr);
 					tempHTML = tempHTML.replace(/{{CONT_NR}}/gi, audits.cont_nr);		
 					tempHTML = tempHTML.replace(/{{IVR_SERV_DTIME}}/gi, moment(audits.ivr_serv_dtime).format("DD MMM YYYY HH:mm"));
@@ -194,12 +248,41 @@ function getAuditList()
 	});		
 }
 
+function deliveryCheck(walker_no,cw,dt,area)
+{
+		
+	//console.log(walker_no+'-'+cw+'-'+dt+'-'+area);
+	localStorage.setItem("AUDIT_WALKER_NO",walker_no);
+	localStorage.setItem("AUDIT_CW",cw);	
+	localStorage.setItem("AUDIT_DT",dt);
+	localStorage.setItem("AUDIT_AREA",area);
+	goTo('deliveryCheck');
+	
+}
+
+function getAuditDetail()
+{
+	
+	
+	var audit_detail_html = $("#audit_detail").html();
+
+	var tempHTML = audit_detail_html;
+
+    tempHTML = tempHTML.replace(/{{CONT_NR}}/gi, localStorage.getItem("AUDIT_WALKER_NO"));
+	tempHTML = tempHTML.replace(/{{CONT_INV_NR}}/gi, localStorage.getItem("AUDIT_CW"));
+	tempHTML = tempHTML.replace(/{{DEL_TERR_CD}}/gi, localStorage.getItem("AUDIT_DT"));
+	tempHTML = tempHTML.replace(/{{DIST_NR}}/gi, localStorage.getItem("AUDIT_AREA"));
+	
+	$("#audit_detail").html(tempHTML);	
+	
+}
+
 function getOutstandingJobs()
 {
 	/*	Sample:{"to_ivr":[{"cont_nr":2203242,"del_terr_cd":90,"cont_inv_nr":377147913,"dist_nr":2203247,"first_nm":"Sergio","last_nm":"Rossi","old_cont_inv_nr":null,"start_dtime":"\/Date(1382360400000)\/","end_dtime":"\/Date(1382446800000)\/","dist_net_cd":"C","batch":179494,"area_cd":290}]}	
 	*/
 	//$("#Outstandingjob").css({'background': 'url(images/tr_bg1.png)', 'height': $(this).height()});
-	showLoader();
+	showLoader();	
 	
 	$.ajax({
 	  url: "https://support.mobiliseit.com/PMP/PDAservice.asmx/GetToIvrByManager",
@@ -222,9 +305,11 @@ function getOutstandingJobs()
 				$.each(data.to_ivr, function(i,outstandingJobs){
 					//console.log(JSON.stringify(audits));
 					tempHTML =  outstanding_jobs_template;
-					tempHTML = tempHTML.replace(/{{DIST_NR}}/gi, outstandingJobs.dist_nr);
+					tempHTML = tempHTML.replace(/{{AREA_CD}}/gi, outstandingJobs.area_cd);
 					tempHTML = tempHTML.replace(/{{CONT_INV_NR}}/gi, outstandingJobs.cont_inv_nr);
-					tempHTML = tempHTML.replace(/{{CONT_NR}}/gi, outstandingJobs.cont_nr);		
+					tempHTML = tempHTML.replace(/{{CONT_NR}}/gi, outstandingJobs.cont_nr);
+					tempHTML = tempHTML.replace(/{{DIST_NR}}/gi, outstandingJobs.dist_nr);
+					
 					
 					tempHTML = tempHTML.replace(/{{DEL_TERR_CD}}/gi, outstandingJobs.del_terr_cd);
 					tempHTML = tempHTML.replace(/{{DIST_NET_CD}}/gi, outstandingJobs.dist_net_cd);
@@ -277,6 +362,8 @@ function getQueryList()
 			
 			if(data.queries_to_pda && data.queries_to_pda.length)
 			{
+				$("#query_count").html(data.queries_to_pda.length);
+				
 				var query_template = $("#query_template").html();
 
 				//console.log(audit_template_html);

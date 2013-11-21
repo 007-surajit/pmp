@@ -76,7 +76,7 @@
 				<div class="row-fluid">
 					<div class="span8">
 						<ul class="queryl">
-							<li><span>Area:</span> {{DIST_NR}}</li>
+							<li><span>Area:</span> {{AREA_CD}}</li>
 							<li><span>CW:</span>{{CONT_INV_NR}}</li>
 							<li><span>Walker No:</span> {{CONT_NR}}</li>
 						</ul>
@@ -85,7 +85,7 @@
 						<ul class="queryr2">
 							<li class="align_right"><span>Dt: </span> {{DEL_TERR_CD}}</li>
 							<li class="align_right"><span>Cat: </span> {{DIST_NET_CD}}</li> 
-							<li class="align_right"><a class="select_btn" href="javascript:void(0)" onClick="popUp()">Select</a></li> 
+							<li class="align_right"><a class="select_btn" href="javascript:void(0)" onClick="popUp('{{DEL_TERR_CD}}','{{CONT_INV_NR}}','{{CONT_NR}}','{{DIST_NR}}','{{UTC_TIME}}')">Select</a></li> 
 						</ul>
 					</div>
 				</div>			
@@ -108,13 +108,13 @@
 	  <div class="span10 offset1 alert_confirmation">	
 	 	<div class="span10 offset1">
 			<h1>Confirmation Alert</h1>
-			<p>Press Yes confirm DT: 25 for <br> CW:377104605 Or No to Abort</p>
+			<p>Press Yes confirm DT: <span class="del_terr_cd"></span> for <br> CW:<span class="cont_inv_nr"></span> Or No to Abort</p>
 		</div>
 		<div class="row-fluid">
 	 	<div class="span4 offset1 align_center" onClick="closePopUp()">
 			<a class="select_btn">No</a>
 		</div>
-		<div class="span4 offset2 align_center" onClick="closePopUp()">
+		<div class="span4 offset2 align_center" onClick="markJobAsComplete('')">
 			<a class="select_btn">Yes</a>
 		</div>
 	 </div>		

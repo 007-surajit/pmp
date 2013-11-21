@@ -10,6 +10,7 @@
 	<link href="css/grid.css" rel="stylesheet" type="text/css" />
 	<link href="css/base.css" rel="stylesheet" type="text/css" />
 	<link href="css/style.css" rel="stylesheet" type="text/css" />
+	<script type="text/javascript" src="js/jquery.js"></script>	
 	<script type="text/javascript" src="js/html5.js"></script>
 	<script type="text/javascript" src="js/custom.js"></script>
 
@@ -20,7 +21,7 @@
 	
 </head>
 
-<body>
+<body onLoad="getAuditDetail();">
 <div id="delivery_check">
 <!--header-->
 <div class="container header2">
@@ -52,25 +53,25 @@
    </div>  
 </div>
 <!--content area-->
-<div class="container form addresscheck">
+<div class="container form addresscheck" id="audit_detail">
     <div class="row-fluid">	
 	   <div class="span10 offset1 checkno">
-	   		Walker No: <span>123456</span>
+	   		Walker No: <span>{{CONT_NR}}</span>
 	   </div>	   
    </div>  
    <div class="row-fluid">	
 	   <div class="span10 offset1 checkno">
-	   		CW: <span>377104605</span>
+	   		CW: <span>{{CONT_INV_NR}}</span>
 	   </div>	   
    </div>
    <div class="row-fluid">	
 	   <div class="span10 offset1 checkno">
-	   		DT	: <span>253</span>
+	   		DT	: <span>{{DEL_TERR_CD}}</span>
 	   </div>	   
    </div>
    <div class="row-fluid">	
 	   <div class="span10 offset1 checkno">
-	   		Area: <span>459</span>
+	   		Area: <span>{{DIST_NR}}</span>
 	   </div>	   
    </div>
    <div class="row-fluid">	

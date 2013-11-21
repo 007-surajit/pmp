@@ -162,12 +162,29 @@ hr {
 	min-height:100%;
 }
 .settings .settings_icon img{
-	vertical-align: middle;
-	padding: 0 0 0 0;
+	/*vertical-align: middle;
+	padding: 0 0 0 0;*/
+	background:url('../images/tick.png') left center no-repeat;
+}
+.settings .settings_icon{
+	/*vertical-align: middle;
+	padding: 0 0 0 0;*/
+	width: 30px;
+	height: 30px;
+	float: left;
+	background:url('../images/tick.png') left center no-repeat;
+	background-size: cover;
+}
+.settings .thikbg{
+	width: 30px;
+	height: 30px;
+	background:url('../images/tick_hover.png') left center no-repeat;
+	background-size: cover;
 }
 .settings_txt{
 	color: #0a506c;
 	padding: 1.2% 0 0 0;
+	line-height: 33px;
 }
 
 /*delivery_audit*/
