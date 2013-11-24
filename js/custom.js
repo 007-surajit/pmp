@@ -185,6 +185,7 @@ var filtered = [12, 5, 8, 130, 44].filter(isBigEnough);
 
 function getAuditList()
 {
+	//alert('getAuditList');
 	localStorage.setItem("screen","delivery_audit");
 	showLoader();
 	var selectAreaList = new Array();
@@ -249,7 +250,9 @@ function getAuditList()
 				$("#delivery_audit_content").html( html );
 				hideLoader();
 				
-			}else {
+			}
+			else 
+			{
 				if(navigator.notification) {
 					navigator.notification.alert("No Data found", function(){history.back()}, 'PMP', 'Ok');
 				}else{
@@ -266,7 +269,7 @@ function getAuditList()
 			navigator.notification.alert("Network Connection Error "+errorThrown, function(){history.back()}, 'PMP', 'Ok');
 		}else{
 			alert("Network Connection Error "+errorThrown);
-		}
+		}		
       }	  
 	});		
 }
@@ -274,12 +277,12 @@ function getAuditList()
 function deliveryCheck(walker_no,cw,dt,area)
 {
 		
-	//console.log(walker_no+'-'+cw+'-'+dt+'-'+area);
+	//console.log(walker_no+'-'+cw+'-'+dt+'-'+area);	
 	localStorage.setItem("AUDIT_WALKER_NO",walker_no);
 	localStorage.setItem("AUDIT_CW",cw);	
 	localStorage.setItem("AUDIT_DT",dt);
 	localStorage.setItem("AUDIT_AREA",area);
-	goTo('deliveryCheck');
+	goTo('deliverycheck');
 	
 }
 
@@ -495,5 +498,4 @@ function getQueryList()
 		}
       }
 	});
-
 }
