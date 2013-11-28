@@ -1,6 +1,9 @@
 @charset "utf-8";
 /*css style*/
 
+* {
+	outline:none;text-shadow:none;
+}
 html,
 body {
   margin: 0;
@@ -522,4 +525,20 @@ https://codeload.github.com/007-surajit/pmp/zip/master
 }
 }
 
+.ui-page { 
+	-webkit-backface-visibility: hidden;
+}
 
+a {
+	outline:none;
+	text-shadow:none;
+}
+
+.ui-page {
+	width:320px ! important;
+	height:568px ! important;
+	background:url('../images/bg2.png');
+	background-size:cover; 
+	background-repeat:repeat;
+	min-height:100%;
+}

@@ -6,25 +6,33 @@
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
+	<meta name="format-detection" content="telephone=no">
     
 	<!--<link href="css/jquery.mobile.custom/jquery.mobile.custom.structure.css" rel="stylesheet" type="text/css" />
 	<link href="css/jquery.mobile.custom/jquery.mobile.custom.theme.css" rel="stylesheet" type="text/css" />-->
 	<link href="css/grid.css" rel="stylesheet" type="text/css" />
 	<link href="css/base.css" rel="stylesheet" type="text/css" />
 	<link href="css/style.css" rel="stylesheet" type="text/css" />
-	<script type="text/javascript" src="phonegap.js"></script>
-	<script type="text/javascript" src="js/jquery.js"></script>	
-	<script type="text/javascript" src="js/html5.js"></script>
-	<!--<script type="text/javascript" src="js/jquery.mobile.custom/jquery.mobile.custom.min.js"></script>-->
-	<script type="text/javascript" src="js/custom.js"></script>
+	
+	<link rel="stylesheet" href="css/jquery.mobile.structure.min.css" />
+	<link rel="stylesheet" href="css/jquery.mobile.theme.min.css" />
+	
+	<script src="phonegap.js"></script>
+	<script src="js/jquery.js"></script>	
+	<script src="js/html5.js"></script>
+	<script src="js/jquery.mobile.js"></script>
+	<script src="js/moment.min.js"></script>	
+	<script src="js/custom.js"></script>
+
 	
     <script>
-		if(localStorage.getItem("dist_nr")!= null) {
-		
-			document.location = "menu.html";			
-		
-		}
-		
+		if(localStorage.getItem("dist_nr")!= null) {		
+			//if(localStorage.getItem("delivery_confirmation_count")==null {
+				document.location = "menu.html";
+            //}else{
+				//document.location = "deliverycheck.html";
+			//}		
+		}				
 	</script>
      <!--[if lt IE 9]>
         <script type="text/javascript" src="http://info.template-help.com/files/ie6_warning/ie6_script_other.js"></script>
@@ -50,7 +58,7 @@
 	   <div class="span10 offset1 input_bg">
 	   		<div class="row-fluid">
 				<div class="span1 login_icon"><img src="images/login_icon3.png" alt=""></div>
-	  			<div class="span11"><input name="username" class="span12" placeholder="Username" type="text" autocorrect="off" autocapitalization="on" autocomplete="off"></div>
+	  			<div class="span11"><input name="username" class="span12" placeholder="Username" type="text" autocorrect="off" autocapitalization="on" autocomplete="off" data-role="none"></div>
 			</div>
 	   </div>	   
    </div>
@@ -58,7 +66,7 @@
 	   <div class="span10 offset1 input_bg">
 	   		<div class="row-fluid">
 				<div class="span1 login_icon"><img src="images/login_icon1.png" alt=""></div>
-	  			<div class="span11"><input name="password" class="span12" placeholder="Password" type="password" autocorrect="off" autocapitalization="on" autocomplete="off"></div>
+	  			<div class="span11"><input name="password" class="span12" placeholder="Password" type="password" autocorrect="off" autocapitalization="on" autocomplete="off" data-role="none"></div>
 			</div>
 	   </div>	   
    </div>

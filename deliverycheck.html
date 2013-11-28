@@ -5,28 +5,29 @@
     
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0">
     <meta name="description" content="">
-    <meta name="author" content="">
-    
+    <meta name="author" content="">    
 	<link href="css/grid.css" rel="stylesheet" type="text/css" />
 	<link href="css/base.css" rel="stylesheet" type="text/css" />
 	<link href="css/style.css" rel="stylesheet" type="text/css" />
+	<script type="text/javascript" src="phonegap.js"></script>
 	<script type="text/javascript" src="js/jquery.js"></script>	
 	<script type="text/javascript" src="js/html5.js"></script>
 	<script type="text/javascript" src="js/custom.js"></script>
-
-     <!--[if lt IE 9]>
+    <!--[if lt IE 9]>
         <script type="text/javascript" src="http://info.template-help.com/files/ie6_warning/ie6_script_other.js"></script>
         <script type="text/javascript" src="js/html5.js"></script>
     <![endif]-->
-	
+	<script>
+		document.addEventListener("deviceready", onDeviceReady, false);				
+	</script>	
 </head>
 
-<body onLoad="getAuditDetail();">
-<div id="delivery_check">
+<body>
+<div data-role="page" id="delivery_check">
 <!--header-->
 <div class="container header2">
     <div class="row-fluid header2_title">
-	 <img onClick="back()" src="images/back.png" class="pull-left back" alt=""> Delivery Checks
+	 <img onClick="delivery_check_back()" src="images/back.png" class="pull-left back" alt=""> Delivery Checks
    </div>
 </div>
 
@@ -43,12 +44,12 @@
 <div class="row-fluid status_area">	
    <div class="span5 offset1 input_bg">
 		<div class="row-fluid">
-			<div class="span12 status1"><img src="images/network_status.png" alt=""> Address Checks</div>
+			<div class="span12 status1"><img src="images/network_status.png" alt="" id="network_status_icon"> Network Status</div>
 		</div>
    </div>	 
    <div class="span5 input_bg">
 		<div class="row-fluid">
-			<div class="span12 status2 pull-right"> Location Status <img src="images/location_status.png" alt=""></div>
+			<div class="span12 status2 pull-right"> Location Status <img src="images/location_status.png" alt="" id="location_status_icon"></div>
 		</div>
    </div>  
 </div>
@@ -76,7 +77,7 @@
    </div>
    <div class="row-fluid">	
 	   <div class="span10 offset1 checkno2">
-	   		Delivery Confirmation: <span>10</span>
+	   		Delivery Confirmation: <span id="delivery_confirmation_count">0</span>
 	   </div>	   
    </div>
    
@@ -84,17 +85,20 @@
    <div class="row-fluid">	
 	   <div class="span4 offset2 input_bg">
 	   		<div class="row-fluid">
-	  			<div class="span12"><input name="" class="span12 login_btn" value="OK" type="button"></div>
+	  			<div class="span12"><input name="" class="span12 login_btn" value="OK" type="button" onClick="delivery_confirmation_action()" data-role="none"></div>
 			</div>
 	   </div>	 
 	   <div class="span4 input_bg">
 	   		<div class="row-fluid">
-	  			<div class="span12"><input name="" class="span12 login_btn" value="Refresh" type="button"></div>
+	  			<div class="span12"><input name="" class="span12 login_btn" value="Refresh" type="button" data-role="none" onClick="checkDeviceStatus()"></div>
 			</div>
 	   </div>  
    </div>   
 </div>
 </div>
+<script>
+
+</script>
 </div>
 </body>
 </html>

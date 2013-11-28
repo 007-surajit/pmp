@@ -1,37 +1,44 @@
 <!DOCTYPE html>
 <html>
+<!--
 <head>
-	<title>Welcome to our site</title>
-    
+	<title>Welcome to our site</title>    
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0">
     <meta name="description" content="">
-    <meta name="author" content="">
-    
+    <meta name="author" content="">    
 	<link href="css/grid.css" rel="stylesheet" type="text/css" />
 	<link href="css/base.css" rel="stylesheet" type="text/css" />
 	<link href="css/style.css" rel="stylesheet" type="text/css" />
 	<script type="text/javascript" src="js/html5.js"></script>
 	<script type="text/javascript" src="js/custom.js"></script>
 	<script type="text/javascript" src="js/jquery.js"></script>
-
-     <!--[if lt IE 9]>
-        <script type="text/javascript" src="http://info.template-help.com/files/ie6_warning/ie6_script_other.js"></script>
-        <script type="text/javascript" src="js/html5.js"></script>
-    <![endif]-->
-	
+     	
 	<script>
 		$(document).ready(function(){
 			$(".settings_icon").click(function(){
 				$(this).toggleClass("thikbg");
-			});
-			
+					if($(this).attr("id") == "play_audit_sound") {
+						if($(this).hasClass("thikbg")) {
+							localStorage.setItem("play_audit_sound","yes");
+						}
+						else {
+							localStorage.setItem("play_audit_sound","no");
+						}
+					}else{
+						if($(this).hasClass("thikbg")) {
+							localStorage.setItem("play_query_sound","yes");
+						}
+						else {
+							localStorage.setItem("play_query_sound","no");
+						}
+					}					
+			});			
 		});
-	</script>
-	
+	</script>	
 </head>
-
+-->
 <body>
-<div id="settings">
+<div data-role="page" id="settings">
 <!--header-->
 <div class="container header2">
     <div class="row-fluid header2_title">
@@ -44,19 +51,18 @@
     <div class="row-fluid">	
 	   <div class="span10 offset1">
 	   		<div class="row-fluid">
-	  			<div class="span12 settings_txt"><span class="settings_icon"></span> Play sound when new audit jobs arrive</div>
+	  			<div class="span12 settings_txt"><span class="settings_icon" id="play_audit_sound"></span> Play sound when new audit jobs arrive</div>
 			</div>
 	   </div>	   
    </div>
    <div class="row-fluid">	
 	   <div class="span10 offset1">
 	   		<div class="row-fluid">
-	  			<div class="span12 settings_txt"><span class="settings_icon"></span> Play sound when new queries arrive</div>
+	  			<div class="span12 settings_txt"><span class="settings_icon" id="play_query_sound"></span> Play sound when new queries arrive</div>
 			</div>
 	   </div>	   
    </div>      
 </div>
 </div>
-
 </body>
 </html>

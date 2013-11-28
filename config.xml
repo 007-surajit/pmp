@@ -3,7 +3,7 @@
 <!-- config.xml reference: https://build.phonegap.com/docs/config-xml -->
 <widget xmlns     = "http://www.w3.org/ns/widgets"
         xmlns:gap = "http://phonegap.com/ns/1.0"
-        id        = "com.mobilise.it"
+        id        = "com.mobiliseit.pmp"
         version   = "1.0.0">
 
     <name>PMP</name>
@@ -21,6 +21,16 @@
         The "device" permission is required for the 'deviceready' event.
     -->
     <feature name="http://api.phonegap.com/1.0/device" />
+	<feature name="http://api.phonegap.com/1.0/network"/>
+	<feature name="NetworkStatus">
+		<param name="android-package" value="org.apache.cordova.NetworkManager" />
+		<param name="ios-package" value="CDVConnection" />
+	</feature>
+	<feature name="http://api.phonegap.com/1.0/geolocation"/>
+	<feature name="Geolocation">
+		<param name="android-package" value="org.apache.cordova.GeoBroker" />
+		<param name="ios-package" value="CDVLocation" />
+	</feature>
 
 	<gap:platform name="ios" />
 	<gap:platform name="android" />
@@ -61,6 +71,8 @@
 	<gap:splash src="res/screen/ios/screen-iphone-land-568h-2x.png" gap:platform="ios" width="1136" height="640" />
 	
 	<gap:plugin name="org.apache.cordova.dialogs" />
+	<gap:plugin name="org.apache.cordova.network-information" />
+	<gap:plugin name="org.apache.cordova.geolocation" />
 	
     <access origin="*" />
 	<!--

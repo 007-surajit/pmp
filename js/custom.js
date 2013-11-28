@@ -1,8 +1,8 @@
 function goTo(page)
 {
 	//alert(page);
-	//$.mobile.changePage( "menu.html", { transition: "slide"} );
-	document.location = page+".html";
+	$.mobile.changePage( page+".html", { transition: "slide"} );
+	//document.location = page+".html";
 }
 
 function back()
@@ -114,9 +114,81 @@ function markJobAsComplete()
 	});
 }
 
+// device APIs are available
+//
+function onDeviceReady() {
+	document.addEventListener("backbutton", delivery_check_back, false);
+	checkDeviceStatus();	
+}
+
+function checkDeviceStatus() {
+	checkConnection();
+	navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onGeolocationError , {  maximumAge: 3000, timeout: 5000, enableHighAccuracy: true });
+}
+
+function checkConnection() {
+    var networkState = navigator.connection.type;
+    /*var states = {};
+    states[Connection.UNKNOWN]  = 'Unknown connection';
+    states[Connection.ETHERNET] = 'Ethernet connection';
+    states[Connection.WIFI]     = 'WiFi connection';
+    states[Connection.CELL_2G]  = 'Cell 2G connection';
+    states[Connection.CELL_3G]  = 'Cell 3G connection';
+    states[Connection.CELL_4G]  = 'Cell 4G connection';
+    states[Connection.CELL]     = 'Cell generic connection';
+    states[Connection.NONE]     = 'No network connection';
+    //alert('Connection type: ' + states[networkState]);
+	if(navigator.notification) {
+			navigator.notification.alert('Connection type: ' + states[networkState], null, 'PMP', 'Ok');
+	 }else{
+		alert('Connection type: ' + states[networkState]);
+	 }*/		
+	 var filename = $("#network_status_icon").attr("src");	
+	 var splitArray = filename.lastIndexOf("/");
+	 var newfilename = "";	 
+	 if(networkState == Connection.NONE) {	 
+		newfilename = filename.substring(0,splitArray)+'/'+'no_network_status.png';			
+	 }else{	 
+		newfilename = filename.substring(0,splitArray)+'/'+'network_status.png';			
+	 }
+	 $("#network_status_icon").attr("src",newfilename);
+}
+
+// onSuccess Geolocation
+//
+function onGeolocationSuccess(position) {
+	/*var element = document.getElementById('geolocation');
+	element.innerHTML = 'Latitude: '          + position.coords.latitude         + '<br />' +
+						'Longitude: '         + position.coords.longitude        + '<br />' +
+						'Altitude: '          + position.coords.altitude         + '<br />' +
+						'Accuracy: '          + position.coords.accuracy         + '<br />' +
+						'Altitude Accuracy: ' + position.coords.altitudeAccuracy + '<br />' +
+						'Heading: '           + position.coords.heading          + '<br />' +
+						'Speed: '             + position.coords.speed            + '<br />' +
+						'Timestamp: '         + position.timestamp               + '<br />';*/
+	//navigator.notification.alert('Latitude: ' + position.coords.latitude + ' Longitude: ' + position.coords.longitude, null, 'PMP', 'Ok');
+	 var filename = $("#location_status_icon").attr("src");	
+	 var splitArray = filename.lastIndexOf("/");
+	 var newfilename = filename.substring(0,splitArray)+'/'+'location_available.png';			
+	 $("#location_status_icon").attr("src",newfilename);
+}
+
+// onError Callback receives a PositionError object
+//
+function onGeolocationError(error) {
+	/*alert('code: '    + error.code    + '\n' +
+		  'message: ' + error.message + '\n');*/
+    //navigator.notification.alert('code: ' + error.code    + '\n' + 'message: ' + error.message, null, 'PMP', 'Ok');
+	var filename = $("#location_status_icon").attr("src");	
+	var splitArray = filename.lastIndexOf("/");
+	var newfilename = filename.substring(0,splitArray)+'/'+'location_status.png';	 
+	$("#location_status_icon").attr("src",newfilename);
+}
+
 function login()
 {
-	console.log('login');	
+	//console.log('login');
+	//checkConnection();    	
 	if($('input[name="username"]').val() == '') {
 		if(navigator.notification) {
 			navigator.notification.alert("Username field is blank", null, 'PMP', 'Ok');
@@ -145,7 +217,10 @@ function login()
 				
 				localStorage.setItem("dist_nr",data.dist_nr);
 				//console.log('Distributor number is '+localStorage.getItem("dist_nr"));
-				setTimeout(function(){goTo('menu');});
+				setTimeout(function(){
+					//goTo('menu');
+					$.mobile.changePage( "menu.html" ,{ transition: "slide"});
+				});
 				
 			}else {
 				//alert(data.Exception.Message);
@@ -174,7 +249,10 @@ function logout()
 {
 	//localStorage.removeItem("dist_nr");
 	localStorage.clear();
-	setTimeout(function(){document.location = "index.html";});
+	setTimeout(function(){
+		//document.location = "index.html";
+		$.mobile.changePage( "index.html", { transition: "slide" , reverse : true} );
+	});
 }
 
 
@@ -298,6 +376,32 @@ function getAuditDetail()
 	tempHTML = tempHTML.replace(/{{DIST_NR}}/gi, localStorage.getItem("AUDIT_AREA"));
 	
 	$("#audit_detail").html(tempHTML);	
+	
+	localStorage.setItem("delivery_confirmation_count","0");
+}
+
+function delivery_confirmation_action() {
+
+	var count = parseInt(localStorage.getItem("delivery_confirmation_count"));
+	count++;
+	localStorage.setItem("delivery_confirmation_count",count);
+	$("#delivery_confirmation_count").text(count);
+
+}
+
+function delivery_check_back() {
+	if(localStorage.getItem("delivery_confirmation_count") < 5) {
+	
+		if(navigator.notification) {
+			navigator.notification.alert("Please complete at least 5 delivery confirmations", null, 'PMP', 'Ok');
+		}else {
+			alert("Please complete at least 5 delivery confirmations");
+		}
+	
+	}else {
+		localStorage.removeItem("delivery_confirmation_count");
+		setTimeout(function(){back()});		
+	}
 }
 
 function getOutstandingJobs()
@@ -456,18 +560,24 @@ function getQueryList()
 					//console.log(JSON.stringify(audits));
 					tempHTML =  query_template;
 					tempHTML = tempHTML.replace(/{{QUERY_NR}}/gi, query.query_nr);
-					tempHTML = tempHTML.replace(/{{DIST_NR}}/gi, query.dist_nr);
+					tempHTML = tempHTML.replace(/{{DIST_NR}}/gi, query.query_area_details);
 					tempHTML = tempHTML.replace(/{{QUERY_DETAIL}}/gi, query.query_detail);
-					tempHTML = tempHTML.replace(/{{QUERY_JOB_NR}}/gi, query.query_job_nr);					
-
+					tempHTML = tempHTML.replace(/{{QUERY_JOB_NR}}/gi, query.query_job_nr);
+					tempHTML = tempHTML.replace(/{{QUERY_JOB_NR}}/gi, query.query_job_nr);
+					tempHTML = tempHTML.replace(/{{DATE_WINDOW}}/gi,  moment(query.query_job_dtime).format("DD MMM YYYY"));			
+                    
+					var area_details = query.query_area_details;
+					
+					var parts = area_details.split("/");
+					
 					if(localStorage.getItem("query_filter")== null) {					
-						if(selectAreaList.indexOf(query.dist_nr) == -1) {
-							selectAreaList.push(query.dist_nr);
+						if(selectAreaList.indexOf(parts[0]) == -1) {
+							selectAreaList.push(parts[0]);
 						}
 						localStorage.setItem("querySelectAreaList",JSON.stringify(selectAreaList));
 						html += tempHTML;
 						queryCount++;
-					}else if(query.dist_nr == localStorage.getItem("query_filter")) {
+					}else if(parts[0] == localStorage.getItem("query_filter")) {
 						html += tempHTML;
 						queryCount++;
 											
@@ -498,4 +608,61 @@ function getQueryList()
 		}
       }
 	});
+}
+
+$(document).on("pageshow", "#delivery_audit", function( event ) {
+	getAuditList();
+});
+
+$(document).on("pageshow", "#delivery_check", function( event ) {
+	getAuditDetail();
+});
+
+$(document).on("pageshow", "#query", function( event ) {
+	getQueryList();
+});
+
+$(document).on("pageshow", "#Outstandingjob", function( event ) {
+	getOutstandingJobs();
+});
+
+$(document).on("pageshow", "#selectarea", function( event ) {
+	populateSelectList();
+});
+
+$(document).on("pageshow", "#settings", function( event ) {
+	$(".settings_icon").click(function(){
+		$(this).toggleClass("thikbg");
+			if($(this).attr("id") == "play_audit_sound") {
+				if($(this).hasClass("thikbg")) {
+					localStorage.setItem("play_audit_sound","yes");
+				}
+				else {
+					localStorage.setItem("play_audit_sound","no");
+				}
+			}else{
+				if($(this).hasClass("thikbg")) {
+					localStorage.setItem("play_query_sound","yes");
+				}
+				else {
+					localStorage.setItem("play_query_sound","no");
+				}
+			}					
+		});
+	setTimeout(function(){loadPreferences()});	
+});
+
+function loadPreferences() {
+
+	if(localStorage.getItem("play_audit_sound")!= null && localStorage.getItem("play_audit_sound") == "yes") {	
+		if(!$("#play_audit_sound").hasClass("thikbg")) {
+			$("#play_audit_sound").toggleClass("thikbg");
+		}
+	}
+	
+	if(localStorage.getItem("play_query_sound")!= null && localStorage.getItem("play_query_sound") == "yes") {
+		if(!$("#play_query_sound").hasClass("thikbg")) {
+			$("#play_query_sound").toggleClass("thikbg");
+		}
+	}						
 }

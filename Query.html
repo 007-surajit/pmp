@@ -11,6 +11,7 @@
 	<link href="css/grid.css" rel="stylesheet" type="text/css" />
 	<link href="css/base.css" rel="stylesheet" type="text/css" />
 	<link href="css/style.css" rel="stylesheet" type="text/css" />
+	<script type="text/javascript" src="js/moment.min.js"></script>	
 	<script type="text/javascript" src="js/jquery.js"></script>	
 	<script type="text/javascript" src="js/html5.js"></script>
     <script type="text/javascript" src="js/custom.js"></script>
@@ -21,8 +22,8 @@
 	
 </head>
 
-<body onLoad="getQueryList()">
-<div id="query">
+<body>
+<div data-role="page" id="query">
 <!--header-->
 <div class="container header2">
     <div class="row-fluid">
@@ -62,7 +63,7 @@
 				<div class="span8">
 					<ul class="queryl">
 						<li><span>Query No:</span> {{QUERY_NR}}</li>
-						<li><span>Date Window:</span>10 Aug 2010</li>
+						<li><span>Date Window:</span>{{DATE_WINDOW}}</li>
 						<li><span>Area:</span> {{DIST_NR}}</li>
 						<li><span>Desc:</span> {{QUERY_DETAIL}}</li>
 					</ul>

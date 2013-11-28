@@ -20,16 +20,6 @@
         <script type="text/javascript" src="js/html5.js"></script>
     <![endif]-->
 <style>
-#overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-	background-color: rgba(0,0,0,0.7);	
-    z-index: 10000;	
-}
-
 #custom {
 	opacity: 1.0;
 }
@@ -37,8 +27,8 @@
 	
 </head>
 
-<body onLoad="getOutstandingJobs();">
-<div id="Outstandingjob">
+<body>
+<div data-role="page" id="Outstandingjob">
 <!--header-->
 <div class="container header2">
     <div class="row-fluid">
@@ -86,7 +76,7 @@
 						<ul class="queryr2">
 							<li class="align_right"><span>Dt: </span> {{DEL_TERR_CD}}</li>
 							<li class="align_right"><span>Cat: </span> {{DIST_NET_CD}}</li> 
-							<li class="align_right"><a class="select_btn" href="javascript:void(0)" onClick="popUp('{{DEL_TERR_CD}}','{{CONT_INV_NR}}','{{CONT_NR}}','{{DIST_NR}}','{{UTC_TIME}}')">Select</a></li> 
+							<li class="align_right"><a class="select_btn" href="javascript:void(0)" data-role="none" onClick="popUp('{{DEL_TERR_CD}}','{{CONT_INV_NR}}','{{CONT_NR}}','{{DIST_NR}}','{{UTC_TIME}}')">Select</a></li> 
 						</ul>
 					</div>
 				</div>			
@@ -99,8 +89,6 @@
     <div class="row-fluid">
 	<div class="footer_icon3" onClick="getOutstandingJobs()">Refresh</div>
    </div>
-</div>
-
 </div>
 <!--alert_confirmation-->
 <div id="confirmation" style="display:none">
@@ -122,6 +110,8 @@
 	  </div>
 	 </div>	 
 </div>
+</div>
+
 </div>
 
 <!--Loader-->
