@@ -256,7 +256,7 @@ function logout()
 	localStorage.clear();
 	setTimeout(function(){
 		//document.location = "index.html";
-		$.mobile.changePage( "index.html", { transition: "slide" , reverse : true} );
+		$.mobile.changePage( "main.html", { transition: "slide" , reverse : true} );
 	});
 }
 
