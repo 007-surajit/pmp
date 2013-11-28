@@ -70,7 +70,7 @@
 	  			<div class="span3">
 					<ul class="audit">
 						<li><span>Dt:</span> {{DEL_TERR_CD}}</li>
-						<li><span>Cat:</span> NA</li>  
+						<li><span>Cat:</span> {{DIST_NET_CD}}</li>  
 					</ul>
 				</div>
 			</div>
@@ -91,11 +91,11 @@
 	 <div class="row-fluid">
 	  <div class="span10 offset1 alert_confirmation delivery_audit_popup">	
 	  	  <div class="cross" onClick="closePopUp()"></div>
-	 	  <div class="calagory" id="all"><span class="icon1"></span>All</div>
-		  <div class="calagory" id="C"><span class="icon2"></span>Catalogue</div>
-		  <div class="calagory" id="N"><span class="icon3"></span>News</div>
-		  <div class="calagory" id="A"><span class="icon4"></span>Address</div>
-		  <div class="calagory" id="Q"><span class="icon5"></span>Query</div>						
+	 	  <div class="calagory" onClick="catalogfilter('all')"><span class="icon1"></span>All</div>
+		  <div class="calagory" onClick="catalogfilter('C')"><span class="icon2"></span>Catalogue</div>
+		  <div class="calagory" onClick="catalogfilter('N')"><span class="icon3"></span>News</div>
+		  <div class="calagory" onClick="catalogfilter('A')"><span class="icon4"></span>Address</div>
+		  <div class="calagory" onClick="catalogfilter('Q')"><span class="icon5"></span>Query</div>						
 	   </div>
 	  </div>	 
 	</div>

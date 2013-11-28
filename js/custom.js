@@ -24,10 +24,10 @@ function popUp(dt,cw,cont_nr,dist_nr)
     
 	var d2 = document.getElementById('confirmation');	
 	
-	if(document.getElementById('overlay') == null) {		
-		d1.insertAdjacentHTML('afterend', '<div id="overlay">'+d2.innerHTML+'</div>');
+	if(document.getElementById('overlayOutstanding') == null) {		
+		d1.insertAdjacentHTML('afterend', '<div id="overlayOutstanding">'+d2.innerHTML+'</div>');
 	}else{
-		document.getElementById('overlay').style.display='block';
+		document.getElementById('overlayOutstanding').style.display='block';
 	}
 }
 
@@ -63,7 +63,13 @@ function popUpDelivery()
 
 function closePopUp()
 {
-	document.getElementById('overlay').style.display='none';
+	if(document.getElementById('overlay') != null) {
+		document.getElementById('overlay').style.display='none';
+	}
+	
+	if(document.getElementById('overlayOutstanding') != null) {
+		document.getElementById('overlayOutstanding').style.display='none';
+	}
 }
 
 function markJobAsComplete()
@@ -117,8 +123,7 @@ function markJobAsComplete()
 // device APIs are available
 //
 function onDeviceReady() {
-	document.addEventListener("backbutton", delivery_check_back, false);
-	checkDeviceStatus();	
+	document.addEventListener("backbutton", delivery_check_back, false);	
 }
 
 function checkDeviceStatus() {
@@ -301,32 +306,58 @@ function getAuditList()
 				var catalogCount = 0;
 				$.each(data.from_ivr, function(i,audits){
 					//console.log(JSON.stringify(audits));
+					
 					tempHTML =  audit_template_html;
 					tempHTML = tempHTML.replace(/{{DIST_NR}}/gi, audits.area_cd);
 					tempHTML = tempHTML.replace(/{{CONT_INV_NR}}/gi, audits.cont_inv_nr);
 					tempHTML = tempHTML.replace(/{{CONT_NR}}/gi, audits.cont_nr);		
 					tempHTML = tempHTML.replace(/{{IVR_SERV_DTIME}}/gi, moment(audits.ivr_serv_dtime).format("DD MMM YYYY HH:mm"));
 					tempHTML = tempHTML.replace(/{{DEL_TERR_CD}}/gi, audits.del_terr_cd);
+					tempHTML = tempHTML.replace(/{{DIST_NET_CD}}/gi, audits.dist_net_cd);					
 					
-					if(localStorage.getItem("delivery_filter")== null) {
+					if(localStorage.getItem('delivery_catalog_filter') == null) {						
 						
-						if(selectAreaList.indexOf(audits.area_cd) == -1) {
-							selectAreaList.push(audits.area_cd);
+						if(localStorage.getItem("delivery_filter")== null) {
+							
+							if(selectAreaList.indexOf(audits.area_cd) == -1) {
+								selectAreaList.push(audits.area_cd);
+							}
+							localStorage.setItem("deliverySelectAreaList",JSON.stringify(selectAreaList));
+							//tempHTML = tempHTML.replace(/{{DIST_NR}}/gi, audits.dist_nr);
+							html += tempHTML;
+							catalogCount++;
+						}else if(audits.area_cd == localStorage.getItem("delivery_filter")) {
+							html += tempHTML;
+							catalogCount++
 						}
-						localStorage.setItem("deliverySelectAreaList",JSON.stringify(selectAreaList));
-						//tempHTML = tempHTML.replace(/{{DIST_NR}}/gi, audits.dist_nr);
-						html += tempHTML;
-						catalogCount++;
-					}else if(audits.area_cd == localStorage.getItem("delivery_filter")) {
-						html += tempHTML;
-						catalogCount++
+                    }else if(audits.dist_net_cd == localStorage.getItem("delivery_catalog_filter")) {
+						
+						if(localStorage.getItem("delivery_filter")== null) {
+							
+							if(selectAreaList.indexOf(audits.area_cd) == -1) {
+								selectAreaList.push(audits.area_cd);
+							}
+							localStorage.setItem("deliverySelectAreaList",JSON.stringify(selectAreaList));
+							//tempHTML = tempHTML.replace(/{{DIST_NR}}/gi, audits.dist_nr);
+							html += tempHTML;
+							catalogCount++;
+						}else if(audits.area_cd == localStorage.getItem("delivery_filter")) {
+							html += tempHTML;
+							catalogCount++
+						}																	
 					}
-					
 				});
 				
 				$("#catalog_count").html(catalogCount);
 				$("#delivery_audit_content").html( html );
 				hideLoader();
+				if(catalogCount == 0) {
+					if(navigator.notification) {
+						navigator.notification.alert("No Data found", null, 'PMP', 'Ok');
+					}else{
+						alert("No Data found");						
+					}
+				}
 				
 			}
 			else 
@@ -390,17 +421,22 @@ function delivery_confirmation_action() {
 }
 
 function delivery_check_back() {
-	if(localStorage.getItem("delivery_confirmation_count") < 5) {
-	
-		if(navigator.notification) {
-			navigator.notification.alert("Please complete at least 5 delivery confirmations", null, 'PMP', 'Ok');
+   
+   if($.mobile.activePage.attr('id') == "delivery_check") {
+		if(localStorage.getItem("delivery_confirmation_count") < 5) {
+		
+			if(navigator.notification) {
+				navigator.notification.alert("Please complete at least 5 delivery confirmations", null, 'PMP', 'Ok');
+			}else {
+				alert("Please complete at least 5 delivery confirmations");
+			}
+		
 		}else {
-			alert("Please complete at least 5 delivery confirmations");
+			localStorage.removeItem("delivery_confirmation_count");
+			setTimeout(function(){back()});		
 		}
-	
-	}else {
-		localStorage.removeItem("delivery_confirmation_count");
-		setTimeout(function(){back()});		
+	}else if($.mobile.activePage.attr('id') == "menu"){
+		setTimeout(function(){back()});
 	}
 }
 
@@ -518,9 +554,20 @@ function filterData(area)
 			localStorage.removeItem('outstandingjob_filter');
 		}
 	}
-	goTo(localStorage.getItem('screen'));
-	
+	goTo(localStorage.getItem('screen'));	
 }
+
+function catalogfilter(filterType)
+{
+	closePopUp();
+	if(filterType != 'all') {
+		localStorage.setItem('delivery_catalog_filter',filterType);
+	}else{
+		localStorage.removeItem('delivery_catalog_filter');
+	}
+	getAuditList();	
+}
+
 
 function getQueryList()
 {
@@ -616,6 +663,7 @@ $(document).on("pageshow", "#delivery_audit", function( event ) {
 
 $(document).on("pageshow", "#delivery_check", function( event ) {
 	getAuditDetail();
+	onDeviceReady();
 });
 
 $(document).on("pageshow", "#query", function( event ) {
