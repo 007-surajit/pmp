@@ -10,6 +10,12 @@ function back()
 	history.back();
 }
 
+function goBack(page) 
+{
+	$.mobile.changePage( page+".html", { transition: "slide" , reverse: true} );
+}
+
+
 function popUp(dt,cw,cont_nr,dist_nr)
 {
 	$('span.del_terr_cd').html(dt);
@@ -84,28 +90,9 @@ function markJobAsComplete()
 	  type: "POST",
 	  data: {cont_nr: localStorage.getItem("JOB_CONT_NR"), cont_inv_nr: localStorage.getItem("JOB_CONT_INV_NR"), del_terr_cd: localStorage.getItem("JOB_DEL_TERR_CD"), dist_nr: localStorage.getItem("JOB_DIST_NR"), utcTime: (new Date()).toUTCString()},
 	  success:function(data, textStatus, jqXHR)
-	  {
-		//hideLoader();
+	  {		
 		closePopUp();
-		getOutstandingJobs();
-		//console.log(data.hasOwnProperty("dist_nrr"));
-		//console.log(JSON.stringify(data));
-		/*if(data.hasOwnProperty("dist_nr"))
-		{
-			
-			localStorage.setItem("dist_nr",data.dist_nr);
-			//console.log('Distributor number is '+localStorage.getItem("dist_nr"));
-			setTimeout(function(){goTo('menu');});
-			
-		}else {
-			//alert(data.Exception.Message);
-			if(navigator.notification) {
-				navigator.notification.alert(data.Exception.Message, null, 'PMP', 'Ok');
-			}else{
-				alert(data.Exception.Message);
-			}	
-
-		}*/
+		getOutstandingJobs();		
 	  },
 	  error: function(jqXHR, textStatus, errorThrown)
 	  {
@@ -123,12 +110,14 @@ function markJobAsComplete()
 // device APIs are available
 //
 function onDeviceReady() {
-	document.addEventListener("backbutton", delivery_check_back, false);	
+	//document.addEventListener("backbutton", delivery_check_back, false);	
 }
 
 function checkDeviceStatus() {
-	checkConnection();
-	navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onGeolocationError , {  maximumAge: 3000, timeout: 5000, enableHighAccuracy: true });
+	if(navigator.connection) {
+		checkConnection();
+		navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onGeolocationError , {  maximumAge: 3000, timeout: 5000, enableHighAccuracy: true });
+	}
 }
 
 function checkConnection() {
@@ -409,20 +398,24 @@ function getAuditDetail()
 	$("#audit_detail").html(tempHTML);	
 	
 	localStorage.setItem("delivery_confirmation_count","0");
+	
+	checkDeviceStatus();
 }
 
 function delivery_confirmation_action() {
-
+	
 	var count = parseInt(localStorage.getItem("delivery_confirmation_count"));
+	if(count <= 6) {
 	count++;
 	localStorage.setItem("delivery_confirmation_count",count);
 	$("#delivery_confirmation_count").text(count);
+	}
 
 }
 
 function delivery_check_back() {
    
-   if($.mobile.activePage.attr('id') == "delivery_check") {
+   /*if($.mobile.activePage.attr('id') == "delivery_check") {
 		if(localStorage.getItem("delivery_confirmation_count") < 5) {
 		
 			if(navigator.notification) {
@@ -436,6 +429,9 @@ function delivery_check_back() {
 			setTimeout(function(){back()});		
 		}
 	}else if($.mobile.activePage.attr('id') == "menu"){
+		setTimeout(function(){back()});
+	}*/
+	if($.mobile.activePage.attr('id') != "menu"){
 		setTimeout(function(){back()});
 	}
 }
@@ -661,9 +657,8 @@ $(document).on("pageshow", "#delivery_audit", function( event ) {
 	getAuditList();
 });
 
-$(document).on("pageshow", "#delivery_check", function( event ) {
-	getAuditDetail();
-	onDeviceReady();
+$(document).on("pagebeforeshow", "#delivery_check", function( event ) {
+	getAuditDetail();	
 });
 
 $(document).on("pageshow", "#query", function( event ) {
