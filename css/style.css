@@ -8,7 +8,6 @@ html,
 body {
   margin: 0;
   padding: 0;
-  height: 100%;
 }
 body {
   color: #524332;
@@ -16,8 +15,19 @@ body {
   line-height: 1.4;
   margin: 0px;
   padding: 0px;
-  font-family: Arial, Helvetica, sans-serif;  
+  font-family: Arial, Helvetica, sans-serif;
+  background:url('../images/bg.png');
+  background-size:cover; 
+  background-repeat: repeat-y;
+ 
 }
+.ui-body-c, .ui-overlay-c{
+  /*background:url('../images/bg2.png');*/
+  background:url('../images/bg.png');
+  background-size:cover; 
+  background-repeat: repeat-y;
+}
+
 body.open-menu {
   overflow: hidden;
 }
@@ -82,6 +92,7 @@ hr {
   background:url('../images/bg.png');
   background-size:cover;
   min-height:100%;
+  background-repeat: repeat-y;
 }
 
 .form input{
@@ -101,8 +112,8 @@ hr {
 	border: 0px;
 	font-size: 24px;
 	color: #fff;
-	float: left;
-	display: inline;
+	display: inline-block;
+	text-align: center;
 }
 .form .login_icon{
 	text-align: center;
@@ -161,8 +172,17 @@ hr {
 #settings, #Outstandingjob, #query, #delivery_audit{
 	background:url('../images/bg2.png');
     background-size:cover; 
-    background-repeat:repeat;
+    background-repeat: repeat-y;
 	min-height:100%;
+}
+.delivery_audit_bg1{
+	background: #ffd7d7;
+}
+.delivery_audit_bg2{
+	background: #fffddc;
+}
+.delivery_audit_bg3{
+	background: #9ebbbb;
 }
 .settings .settings_icon img{
 	/*vertical-align: middle;
@@ -201,7 +221,7 @@ hr {
 	font-size: 18px;
 }
 .delivery_audit{
-	/*border-bottom: 1px solid #88dcff;*/
+	border-bottom: 1px solid #88dcff;
 	padding: 10px 0;
 	/*background:  url(../images/horz_dot2.png) left bottom repeat-x;*/
 }
@@ -252,7 +272,6 @@ https://codeload.github.com/007-surajit/pmp/zip/master
 .queryr2 li span{
 	color: #0190c5;
 }
-
 .select_btn{
 	color: #fff;
 	display: block;
@@ -533,12 +552,13 @@ a {
 	outline:none;
 	text-shadow:none;
 }
-
+/*
 .ui-page {
 	width:320px ! important;
 	height:568px ! important;
 	background:url('../images/bg2.png');
 	background-size:cover; 
-	background-repeat:repeat;
+	background-repeat: repeat-y;
 	min-height:100%;
 }
+*/
