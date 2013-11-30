@@ -31,6 +31,10 @@
 		<param name="android-package" value="org.apache.cordova.GeoBroker" />
 		<param name="ios-package" value="CDVLocation" />
 	</feature>
+	<feature name="Device">
+		<param name="android-package" value="org.apache.cordova.device.Device" />
+	</feature>
+
 
 	<gap:platform name="ios" />
 	<gap:platform name="android" />
@@ -75,6 +79,8 @@
 	<gap:plugin name="org.apache.cordova.dialogs" />
 	<gap:plugin name="org.apache.cordova.network-information" />
 	<gap:plugin name="org.apache.cordova.geolocation" />
+	<gap:plugin name="org.apache.cordova.device" />
+	 
 	
     <access origin="*" />
 	<!--

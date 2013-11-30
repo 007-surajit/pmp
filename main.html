@@ -18,6 +18,7 @@
 	<link href="css/style.css" rel="stylesheet" type="text/css" />
 	
 	<script src="phonegap.js"></script>
+	<script type="text/javascript" charset="utf-8" src="keychain.js"></script>
 	<script src="js/jquery.js"></script>	
 	<script src="js/html5.js"></script>
 	<script src="js/jquery.mobile.js"></script>
@@ -33,7 +34,10 @@
 				//document.location = "deliverycheck.html";
 			//}		
 		}
-        document.addEventListener("deviceready", onDeviceReady, false);			
+		function onBodyLoad()
+        {
+                document.addEventListener("deviceready", onDeviceReady,false);
+        }        
 	</script>
      <!--[if lt IE 9]>
         <script type="text/javascript" src="http://info.template-help.com/files/ie6_warning/ie6_script_other.js"></script>
@@ -42,7 +46,7 @@
 	
 </head>
 
-<body>
+<body onload="onBodyLoad()">
 <div id="login">
 <!--header-->
 <div class="container header1">

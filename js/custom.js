@@ -110,7 +110,9 @@ function markJobAsComplete()
 // device APIs are available
 //
 function onDeviceReady() {
-	//document.addEventListener("backbutton", delivery_check_back, false);	
+	//document.addEventListener("backbutton", delivery_check_back, false);
+	 //
+	 navigator.notification.alert("Unique identifier "+device.uuid, null, 'PMP', 'Ok');
 }
 
 function checkDeviceStatus() {
@@ -405,7 +407,7 @@ function getAuditDetail()
 function delivery_confirmation_action() {
 	
 	var count = parseInt(localStorage.getItem("delivery_confirmation_count"));
-	if(count <= 6) {
+	if(count < 6) {
 	count++;
 	localStorage.setItem("delivery_confirmation_count",count);
 	$("#delivery_confirmation_count").text(count);
