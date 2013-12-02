@@ -15,6 +15,82 @@ function goBack(page)
 	$.mobile.changePage( page+".html", { transition: "slide" , reverse: true} );
 }
 
+function submitFromPda()
+{
+	/*<from_pda_id>guid</from_pda_id>
+      <imei_id>string</imei_id>
+      <dist_nr>int</dist_nr>
+      <dist_nm>string</dist_nm>
+      <pda_user_dtime>dateTime</pda_user_dtime>
+      <utcTime>dateTime</utcTime>
+      <dist_net_cd>string</dist_net_cd>
+      <cont_inv_nr>int</cont_inv_nr>
+      <del_terr_cd>int</del_terr_cd>
+      <latitude>double</latitude>
+      <longitude>double</longitude>*/
+	  showLoader();
+	var UTCstring = (new Date()).toUTCString();
+	console.log(UTCstring);  
+	
+	
+	/*POST /PMP/PDAservice.asmx HTTP/1.1
+Host: support.mobiliseit.com
+Content-Type: text/xml; charset=utf-8
+Content-Length: length
+SOAPAction: "http://tempuri.org/SubmitFromPda"
+
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <SubmitFromPda xmlns="http://tempuri.org/">
+      <from_pda_id>guid</from_pda_id>
+      <imei_id>string</imei_id>
+      <dist_nr>int</dist_nr>
+      <dist_nm>string</dist_nm>
+      <pda_user_dtime>dateTime</pda_user_dtime>
+      <utcTime>dateTime</utcTime>
+      <dist_net_cd>string</dist_net_cd>
+      <cont_inv_nr>int</cont_inv_nr>
+      <del_terr_cd>int</del_terr_cd>
+      <latitude>double</latitude>
+      <longitude>double</longitude>
+    </SubmitFromPda>
+  </soap:Body>
+</soap:Envelope>*/	
+	
+	var soapMessage = '<?xml version="1.0" encoding="utf-8"?><soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body><SubmitFromPda xmlns="http://tempuri.org/"><from_pda_id>2aecb267-aa8c-46bb-ad4b-ec501ae95f67</from_pda_id><imei_id>string</imei_id><dist_nr>1</dist_nr><dist_nm>string</dist_nm><pda_user_dtime>dateTime</pda_user_dtime><utcTime>dateTime</utcTime><dist_net_cd>string</dist_net_cd><cont_inv_nr>int</cont_inv_nr><del_terr_cd>int</del_terr_cd><latitude>double</latitude><longitude>double</longitude></SubmitFromPda></soap:Body></soap:Envelope>';
+						
+    var soapServiceURL = "https://support.mobiliseit.com/PMP/PDAservice.asmx";
+    //$.support.cors = true;
+    $.ajax({
+        url: soapServiceURL,
+		beforeSend: function(xhr) {
+			xhr.setRequestHeader("Content-Type","text/xml; charset=utf-8");
+			xhr.setRequestHeader("Content-Length",soapMessage.length);
+			xhr.setRequestHeader("SOAPAction","http://tempuri.org/SubmitFromPda");
+            },        
+        type: "POST",
+        dataType: "xml", 
+        cache : false,
+        processData: false,
+        data: soapMessage,
+        success:function(data, textStatus, jqXHR)
+	    {		
+			console.log(JSON.stringify(data));	
+	    },
+	    error: function(jqXHR, textStatus, errorThrown)
+	    {
+			 hideLoader();		 
+			 if(navigator.notification) {
+				navigator.notification.alert("Network Connection Error "+errorThrown, null, 'Outstanding Jobs', 'Ok');
+			 }else{
+				alert("Network Connection Error "+errorThrown);
+			 }			
+	   }
+    });
+
+}
+
 
 function popUp(dt,cw,cont_nr,dist_nr)
 {
@@ -58,7 +134,9 @@ function popUpDelivery()
 	//var overlay = jQuery('<div id="overlay"> </div>');
 	//overlay.appendTo(document.body);
 	var d1 = document.getElementById('delivery_audit');
-    var d2 = document.getElementById('audit_popup');	
+    var d2 = document.getElementById('audit_popup');
+    
+     	
 	//d1.insertAdjacentHTML('afterend', '<div id="overlay"> </div>');
 	if(document.getElementById('overlay') == null) {
 		d1.insertAdjacentHTML('afterend', '<div id="overlay">'+d2.innerHTML+'</div>');
@@ -99,7 +177,7 @@ function markJobAsComplete()
 		 hideLoader();
 		 closePopUp();
 		 if(navigator.notification) {
-			navigator.notification.alert("Network Connection Error "+errorThrown, null, 'PMP', 'Ok');
+			navigator.notification.alert("Network Connection Error "+errorThrown, null, 'Outstanding Jobs', 'Ok');
 		 }else{
 			alert("Network Connection Error "+errorThrown);
 		 }			
@@ -112,7 +190,7 @@ function markJobAsComplete()
 function onDeviceReady() {
 	//document.addEventListener("backbutton", delivery_check_back, false);
 	 //
-	 navigator.notification.alert("Unique identifier "+device.uuid, null, 'PMP', 'Ok');
+	 //navigator.notification.alert("Unique identifier "+device.uuid, null, 'PMP', 'Ok');
 }
 
 function checkDeviceStatus() {
@@ -187,13 +265,13 @@ function login()
 	//checkConnection();    	
 	if($('input[name="username"]').val() == '') {
 		if(navigator.notification) {
-			navigator.notification.alert("Username field is blank", null, 'PMP', 'Ok');
+			navigator.notification.alert("Username field is blank", null, 'Login', 'Ok');
 		 }else{
 			alert("Username field is blank");
 		 }
 	}else if($('input[name="password"]').val() == '') {
 		if(navigator.notification) {
-			navigator.notification.alert("Password field is blank", null, 'PMP', 'Ok');
+			navigator.notification.alert("Password field is blank", null, 'Login', 'Ok');
 		}else{
 			alert("Password field is blank");
 		}
@@ -221,7 +299,7 @@ function login()
 			}else {
 				//alert(data.Exception.Message);
 				if(navigator.notification) {
-					navigator.notification.alert(data.Exception.Message, null, 'PMP', 'Ok');
+					navigator.notification.alert(data.Exception.Message, null, 'Login', 'Ok');
 				}else{
 					alert(data.Exception.Message);
 				}	
@@ -232,9 +310,10 @@ function login()
 		  {
 			 hideLoader();
 			 if(navigator.notification) {
-				navigator.notification.alert("Network Connection Error "+errorThrown, null, 'PMP', 'Ok');
+				navigator.notification.alert("Network Connection Error "+errorThrown, null, 'Login', 'Ok');
 			 }else{
 				alert("Network Connection Error "+errorThrown);
+				//$.mobile.changePage( "menu.html" ,{ transition: "slide"});
 			 }			
 		   }	  
 		  });
@@ -243,10 +322,18 @@ function login()
 
 function logout()
 {
-	//localStorage.removeItem("dist_nr");
+	var play_audit_sound ="no",play_query_sound="no";
+	if(localStorage.getItem("play_audit_sound")!= null) {	
+		play_audit_sound = localStorage.getItem("play_audit_sound");
+	}	
+	if(localStorage.getItem("play_query_sound")!= null) {	
+		play_audit_sound = localStorage.getItem("play_query_sound");
+	}
 	localStorage.clear();
 	setTimeout(function(){
 		//document.location = "index.html";
+		localStorage.setItem("play_audit_sound",play_audit_sound);
+		localStorage.setItem("play_query_sound",play_query_sound);
 		$.mobile.changePage( "main.html", { transition: "slide" , reverse : true} );
 	});
 }
@@ -259,8 +346,30 @@ var filtered = [12, 5, 8, 130, 44].filter(isBigEnough);
 
 function getAuditList()
 {
-	//alert('getAuditList');
 	localStorage.setItem("screen","delivery_audit");
+    var delivery_category_filter = 'All';
+	if(localStorage.getItem('delivery_catalog_filter') != null) {	
+		switch(localStorage.getItem('delivery_catalog_filter')) {
+		  case 'all':                      
+			delivery_category_filter = 'All';
+			break;			
+		  case 'C':                      
+			delivery_category_filter = 'Catalogue';
+			break;                     
+		  case 'N':                      
+			delivery_category_filter = 'News';
+			break;                     
+		  case 'A':                      
+			delivery_category_filter = 'Address';
+			break;                     
+		  case 'Q':                      
+			delivery_category_filter = 'Query';
+			break;                     
+		  default:		
+			break;                     
+		}
+	}
+	$("#catalog_type").html(delivery_category_filter);	
 	showLoader();
 	var selectAreaList = new Array();
 	//$("#delivery_audit").css({'background': 'url(images/tr_bg1.png)', 'height': $(this).height()});
@@ -274,37 +383,54 @@ function getAuditList()
 				ivr_user_dtime => current time, 
 				“deliveryday” => day name
 	*/
-	
+	console.log(localStorage.getItem("dist_nr"));
 	$.ajax({
 	  url: "https://support.mobiliseit.com/PMP/PDAservice.asmx/GetFromIvrByManager",
 	  type: "POST",
 	  data: {dist_nr: localStorage.getItem("dist_nr")},
 	  dataType: 'json',
 	  success:function(data, textStatus, jqXHR)
-      {
+	  {
 			//console.log(data.hasOwnProperty("dist_nrr"));from_ivr
 			
-			/*data= {"from_ivr":[{"cont_nr":9808236,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9806236,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9808636,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9908636,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9918636,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9918736,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9918746,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9919746,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9919746,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9919746,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9919746,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null}]};*/
+			/*data= {"from_ivr":[{"cont_nr":9808236,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"N","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9806236,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"N","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9808636,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"C","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9908636,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"Q","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9918636,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"Q","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9918736,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"Q","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9918746,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"N","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9919746,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"Q","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9919746,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"N","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9919746,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"A","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9919746,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"C","dist_nr":3050234,"ivr_serv_dtime":moment(),"ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null}]};*/
 						
 			if(data.from_ivr.length)
-			{
-				
+			{				
 				var audit_template_html = $("#audit_template").html();
-
 				//console.log(audit_template_html);
 				var html = "";
 				var tempHTML = "";
 				var catalogCount = 0;
 				$.each(data.from_ivr, function(i,audits){
-					//console.log(JSON.stringify(audits));
-					
+					//console.log(JSON.stringify(audits));					
 					tempHTML =  audit_template_html;
 					tempHTML = tempHTML.replace(/{{DIST_NR}}/gi, audits.area_cd);
 					tempHTML = tempHTML.replace(/{{CONT_INV_NR}}/gi, audits.cont_inv_nr);
 					tempHTML = tempHTML.replace(/{{CONT_NR}}/gi, audits.cont_nr);		
 					tempHTML = tempHTML.replace(/{{IVR_SERV_DTIME}}/gi, moment(audits.ivr_serv_dtime).format("DD MMM YYYY HH:mm"));
 					tempHTML = tempHTML.replace(/{{DEL_TERR_CD}}/gi, audits.del_terr_cd);
-					tempHTML = tempHTML.replace(/{{DIST_NET_CD}}/gi, audits.dist_net_cd);					
+					tempHTML = tempHTML.replace(/{{DIST_NET_CD}}/gi, audits.dist_net_cd);
+					
+					var ivr_time = moment(audits.ivr_serv_dtime);
+					var now = moment();
+					var difference_in_hours = now.diff(ivr_time, 'hours');
+					var class_name ="";
+					if(difference_in_hours >= 24) {
+						class_name = "delivery_audit_bg1";
+					}else if(difference_in_hours >= 12) {
+						class_name = "delivery_audit_bg2";
+					}else if(difference_in_hours < 12) {
+						class_name = "delivery_audit_bg3";
+					}
+					/*if(i %2 == 0) {
+						class_name = "delivery_audit_bg1";
+					}else if(i%3==0) {
+						class_name = "delivery_audit_bg2";
+					}else {
+						class_name = "delivery_audit_bg3";
+					}*/
+					tempHTML = tempHTML.replace(/{{class_name}}/gi, class_name);
 					
 					if(localStorage.getItem('delivery_catalog_filter') == null) {						
 						
@@ -339,12 +465,12 @@ function getAuditList()
 					}
 				});
 				
-				$("#catalog_count").html(catalogCount);
+				$("#catalog_count").html(' ('+catalogCount+') ');
 				$("#delivery_audit_content").html( html );
 				hideLoader();
 				if(catalogCount == 0) {
 					if(navigator.notification) {
-						navigator.notification.alert("No Data found", null, 'PMP', 'Ok');
+						navigator.notification.alert("No Data found", null, 'Delivery Audit', 'Ok');
 					}else{
 						alert("No Data found");						
 					}
@@ -354,24 +480,24 @@ function getAuditList()
 			else 
 			{
 				if(navigator.notification) {
-					navigator.notification.alert("No Data found", function(){history.back()}, 'PMP', 'Ok');
+					navigator.notification.alert("No Data found", function(){history.back()}, 'Delivery Audit', 'Ok');
 				}else{
 					alert("No Data found");
 					setTimeout(function(){history.back()});
 				}
 			}
       },
-      error: function(jqXHR, textStatus, errorThrown)
+      error: function(jqXHR, textStatus, errorThrown)	  
       {
             //if fails
 		hideLoader();
 		if(navigator.notification) {
-			navigator.notification.alert("Network Connection Error "+errorThrown, function(){history.back()}, 'PMP', 'Ok');
+			navigator.notification.alert("Network Connection Error "+errorThrown, function(){history.back()}, 'Delivery Audit', 'Ok');
 		}else{
 			alert("Network Connection Error "+errorThrown);
 		}		
       }	  
-	});		
+	});	
 }
 
 function deliveryCheck(walker_no,cw,dt,area)
@@ -496,7 +622,7 @@ function getOutstandingJobs()
 				
 			}else {			
 				if(navigator.notification) {
-					navigator.notification.alert("No Data found", function(){history.back()}, 'PMP', 'Ok');
+					navigator.notification.alert("No Data found", function(){history.back()}, 'Outstanding Jobs', 'Ok');
 				}else{
 					alert("No Data found");
 					setTimeout(function(){history.back()});
@@ -508,7 +634,7 @@ function getOutstandingJobs()
         //if fails
 		hideLoader();
 		if(navigator.notification) {
-			navigator.notification.alert("Network Connection Error "+errorThrown, function(){history.back()}, 'PMP', 'Ok');
+			navigator.notification.alert("Network Connection Error "+errorThrown, function(){history.back()}, 'Outstanding Jobs', 'Ok');
 		}else{
 			alert("Network Connection Error "+errorThrown);
 		}
@@ -563,6 +689,8 @@ function catalogfilter(filterType)
 	}else{
 		localStorage.removeItem('delivery_catalog_filter');
 	}
+	$("#overlay .calagory").css("background-image","url(images/category_bg2.png)");
+	setTimeout(function(){$("#overlay #"+filterType).css("background-image","url(images/category_hover2.png)");});	
 	getAuditList();	
 }
 
@@ -635,7 +763,7 @@ function getQueryList()
 				
 			}else {			
 				if(navigator.notification) {
-					navigator.notification.alert("No Data found", function(){history.back()}, 'PMP', 'Ok');
+					navigator.notification.alert("No Data found", function(){history.back()}, 'Query Inbox', 'Ok');
 				}else{
 					alert("No Data found");
 					setTimeout(function(){history.back()});
@@ -647,7 +775,7 @@ function getQueryList()
         //if fails
 		hideLoader();
 		if(navigator.notification) {
-			navigator.notification.alert("Network Connection Error "+errorThrown, function(){history.back()}, 'PMP', 'Ok');
+			navigator.notification.alert("Network Connection Error "+errorThrown, function(){history.back()}, 'Query Inbox', 'Ok');
 		}else{
 			alert("Network Connection Error "+errorThrown);
 		}

@@ -93,7 +93,7 @@
    </div-->      
 
 <div id ="audit_template" style="display:none">
-	  <div class="row-fluid" onClick="deliveryCheck('{{CONT_NR}}','{{CONT_INV_NR}}','{{DEL_TERR_CD}}','{{DIST_NR}}')">	
+	  <div class="row-fluid {{class_name}}" onClick="deliveryCheck('{{CONT_NR}}','{{CONT_INV_NR}}','{{DEL_TERR_CD}}','{{DIST_NR}}')">	
 	   <div class="span10 offset1 delivery_audit query_area">
 	   		<div class="row-fluid">
 				<div class="span9">
@@ -120,7 +120,7 @@
 <!--footer-->
 <div class="container footer">
     <div class="row-fluid">
-	<div class="footer_icon1" onClick="popUpDelivery()"><span>Catalogue-</span><span id="catalog_count">&nbsp;</span></div>	
+	<div class="footer_icon1" onClick="popUpDelivery()"><span id="catalog_type">&nbsp;</span><span id="catalog_count">&nbsp;</span></div>	
 	<div class="footer_icon3" onClick="javascript:getAuditList()">Refresh</div>
    </div>
 </div>
@@ -131,11 +131,11 @@
 	 <div class="row-fluid">
 	  <div class="span10 offset1 alert_confirmation delivery_audit_popup">	
 	  	  <div class="cross" onClick="closePopUp()"></div>
-	 	  <div class="calagory" onClick="catalogfilter('all')"><span class="icon1"></span>All</div>
-		  <div class="calagory" onClick="catalogfilter('C')"><span class="icon2"></span>Catalogue</div>
-		  <div class="calagory" onClick="catalogfilter('N')"><span class="icon3"></span>News</div>
-		  <div class="calagory" onClick="catalogfilter('A')"><span class="icon4"></span>Address</div>
-		  <div class="calagory" onClick="catalogfilter('Q')"><span class="icon5"></span>Query</div>						
+	 	  <div class="calagory" id="all" onClick="catalogfilter('all')"><span class="icon1"></span>All</div>
+		  <div class="calagory" id="C" onClick="catalogfilter('C')"><span class="icon2"></span>Catalogue</div>
+		  <div class="calagory" id="N" onClick="catalogfilter('N')"><span class="icon3"></span>News</div>
+		  <div class="calagory" id="A" onClick="catalogfilter('A')"><span class="icon4"></span>Address</div>
+		  <div class="calagory" id="Q" onClick="catalogfilter('Q')"><span class="icon5"></span>Query</div>						
 	   </div>
 	  </div>	 
 	</div>

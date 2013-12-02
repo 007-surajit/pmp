@@ -4,10 +4,22 @@
 * {
 	outline:none;text-shadow:none;
 }
+
+*:not(input,textarea) {
+	-webkit-touch-callout: none;                /* prevent callout to copy image, etc when tap to hold */
+    -webkit-text-size-adjust: none;             /* prevent webkit from resizing text to fit */
+    -webkit-tap-highlight-color: rgba(0,0,0,0); /* make transparent link selection, adjust last value opacity 0 to 1.0 */
+    -webkit-user-select: none;
+}
+
 html,
 body {
   margin: 0;
   padding: 0;
+  -webkit-touch-callout: none;                /* prevent callout to copy image, etc when tap to hold */
+  -webkit-text-size-adjust: none;             /* prevent webkit from resizing text to fit */
+  -webkit-tap-highlight-color: rgba(0,0,0,0); /* make transparent link selection, adjust last value opacity 0 to 1.0 */
+  -webkit-user-select: none;
 }
 body {
   color: #524332;
@@ -182,7 +194,7 @@ hr {
 	background: #fffddc;
 }
 .delivery_audit_bg3{
-	background: #9ebbbb;
+	background: #fff;
 }
 .settings .settings_icon img{
 	/*vertical-align: middle;
@@ -406,6 +418,11 @@ https://codeload.github.com/007-surajit/pmp/zip/master
 	font: normal 18px Arial, Helvetica, sans-serif;
 }
 .calagory:hover{
+    padding: 5px 0 5px 30px;
+	margin-bottom: 15px;
+	cursor: pointer;
+	color: #0d4459;
+	font: normal 18px Arial, Helvetica, sans-serif;
 	background: url(../images/category_hover2.png) center center repeat-y;
 }
 .calagory .icon1{
