@@ -102,6 +102,30 @@
    </div>
 </div>
 
+<div id="audit_template" style="display:none">
+	<div class="row-fluid {{class_name}}" onClick="deliveryCheck('{{CONT_NR}}','{{CONT_INV_NR}}','{{DEL_TERR_CD}}','{{DIST_NR}}')">	
+		   <div class="span10 offset1 delivery_audit query_area">
+				<div class="row-fluid">
+					<div class="span9">
+						<ul class="delivery">
+							<li><span>Area:</span> {{DIST_NR}}</li>
+							<li><span>CW:</span>{{CONT_INV_NR}}</li>
+							<li><span>Walker No:</span> {{CONT_NR}}</li>
+							<li><img src="images/icon_clock.png" alt=""> IVR Time: {{IVR_SERV_DTIME}}</li>
+						</ul>
+					</div>
+					<div class="span3">
+						<ul class="audit">
+							<li><span>Dt:</span> {{DEL_TERR_CD}}</li>
+							<li><span>Cat:</span> {{DIST_NET_CD}}</li>  
+						</ul>
+					</div>
+				</div>
+		   </div>	   
+	</div>
+</div>
+
+
 <!--Audit Popup-->
 <div id="audit_popup" style="display:none">
 	<div class="container">

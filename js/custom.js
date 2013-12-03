@@ -418,11 +418,11 @@ function auditSuccess(data) {
     var selectAreaList = new Array();
 	if(data.from_ivr.length)
 	{	
-		$.get('audit_template.html', function(template_data) {
+		//$.get('audit_template.html', function(template_data) {
 			//console.log(audit_template_html);
 			var html = "";
 			var catalogCount = 0;
-			tempHTML = template_data;
+			tempHTML = $("#audit_template").html();
 			$.each(data.from_ivr, function(i,audits){
 				//console.log(JSON.stringify(audits));
 					
@@ -498,7 +498,7 @@ function auditSuccess(data) {
 					alert("No Data found");						
 				}
 			}
-		});
+		//});
 				
 	}
 	else 
