@@ -46,7 +46,7 @@ body.open-menu {
 h1 { font-size: 30px; color: #275ba2; margin: 10px 0; }
 h2 { font-size: 14px; color: #fff; text-shadow: 0 1px 1px #658515; padding: 0 12px; margin: 20px 0 0 0; }
 h3 { font-size: 12px; color: #8c8c8c; margin: 5px 10px; text-transform: uppercase; }
-a, a:visited, a:hover { text-decoration: none; color: #275ba2; outline:none;}
+a, a:visited, a:active { text-decoration: none; color: #275ba2; outline:none;}
 p { }
 img { border: 0; max-width:100%;}
 a img { border: 0; }
@@ -114,6 +114,11 @@ hr {
 	padding: 6px;
 	background:  url(../images/btn_bg2.png) left top repeat-x;
 }
+
+/*.form .input_bg:active {
+	background:  url(../images/btn_bg_active.png) left top repeat-x #0075ab;
+} */
+
 .form .input_bg2{
 	padding: 6px 6px 0 6px;
 	background:  url(../images/btn_bg2.png) left top repeat-x #0075ab;
@@ -144,6 +149,10 @@ hr {
 	border: 1px solid #cdf0fd;
 	box-shadow: 0 1px 2px #50bceb;
 	background:  url(../images/btn_bg.png) left top repeat-x;
+}
+
+.menu .menu_bg:active{
+ background:  url(../images/btn_bg_active.png) left top repeat-x;
 }
 .menu .menu_bg_black{
 	background: #000;
@@ -213,7 +222,7 @@ hr {
 .settings .thikbg{
 	width: 30px;
 	height: 30px;
-	background:url('../images/tick_hover.png') left center no-repeat;
+	background:url('../images/tick_active.png') left center no-repeat;
 	background-size: cover;
 }
 .settings_txt{
@@ -292,7 +301,7 @@ https://codeload.github.com/007-surajit/pmp/zip/master
 	border: 1px solid #daf4fe;
 	background:  url(../images/btn_bg2.png) left top repeat-x;
 }
-.select_btn:hover{
+.select_btn:active{
 	color: #fff;
 }
 
@@ -303,7 +312,7 @@ https://codeload.github.com/007-surajit/pmp/zip/master
 	cursor: pointer;
 	border-bottom: 1px solid #88dcff;
 }
-.area_list:hover, .area_list.here{
+.area_list:active, .area_list.here{
 	color: #007fb3;
 	border-bottom: 1px solid #88dcff;
 	background:  url(../images/area_bg.png) right top repeat-y #fff; 
@@ -417,13 +426,13 @@ https://codeload.github.com/007-surajit/pmp/zip/master
 	color: #0d4459;
 	font: normal 18px Arial, Helvetica, sans-serif;
 }
-.calagory:hover{
+.calagory:active{
     padding: 5px 0 5px 30px;
 	margin-bottom: 15px;
 	cursor: pointer;
 	color: #0d4459;
 	font: normal 18px Arial, Helvetica, sans-serif;
-	background: url(../images/category_hover2.png) center center repeat-y;
+	background: url(../images/category_active2.png) center center repeat-y;
 }
 .calagory .icon1{
 	display: inline-block;
@@ -432,7 +441,7 @@ https://codeload.github.com/007-surajit/pmp/zip/master
 	margin-right: 6px;
 	background: url(../images/delivery_icon1.png) center top repeat-y;
 }
-.calagory .icon1:hover{
+.calagory .icon1:active{
 	background-position: center -24px;
 }
 .calagory .icon2{
@@ -442,7 +451,7 @@ https://codeload.github.com/007-surajit/pmp/zip/master
 	margin-right: 6px;
 	background: url(../images/delivery_icon2.png) center top repeat-y;
 }
-.calagory .icon2:hover{
+.calagory .icon2:active{
 	background-position: center -23px;
 }
 .calagory .icon3{
@@ -452,7 +461,7 @@ https://codeload.github.com/007-surajit/pmp/zip/master
 	margin-right: 6px;
 	background: url(../images/delivery_icon3.png) center top repeat-y;
 }
-.calagory .icon3:hover{
+.calagory .icon3:active{
 	background-position: center -21px;
 }
 .calagory .icon4{
@@ -462,7 +471,7 @@ https://codeload.github.com/007-surajit/pmp/zip/master
 	margin-right: 6px;
 	background: url(../images/delivery_icon4.png) center top repeat-y;
 }
-.calagory .icon4:hover{
+.calagory .icon4:active{
 	background-position: center -17px;
 }
 .calagory .icon5{
@@ -472,7 +481,7 @@ https://codeload.github.com/007-surajit/pmp/zip/master
 	margin-right: 6px;
 	background: url(../images/delivery_icon5.png) center top repeat-y;
 }
-.calagory .icon5:hover{
+.calagory .icon5:active{
 	background-position: center -22px;
 }
 
@@ -511,7 +520,7 @@ https://codeload.github.com/007-surajit/pmp/zip/master
 .footer_icon1 span, .footer_icon2 span{
 	color: #155771;
 }
-.footer_icon1 span:hover, .footer_icon2 span:hover{
+.footer_icon1 span:active, .footer_icon2 span:active{
 	color: #fff;
 }
 .footer_icon3{
@@ -524,14 +533,14 @@ https://codeload.github.com/007-surajit/pmp/zip/master
 	padding-left: 18%;
 	background: url(../images/footer_icon3.png) 10% center no-repeat;	
 }
-.footer_icon1:hover, .footer_icon1.here{
-	background: url(../images/footer_icon1_hover.png) 10% center no-repeat #000;
+.footer_icon1:active, .footer_icon1.here{
+	background: url(../images/footer_icon1_active.png) 10% center no-repeat #000;
 }
-.footer_icon2:hover, .footer_icon2.here{
-	background: url(../images/footer_icon2_hover.png) 10% center no-repeat #000;
+.footer_icon2:active, .footer_icon2.here{
+	background: url(../images/footer_icon2_active.png) 10% center no-repeat #000;
 }
-.footer_icon3:hover, .footer_icon3.here{
-	background: url(../images/footer_icon3_hover.png) 10% center no-repeat #000;
+.footer_icon3:active, .footer_icon3.here{
+	background: url(../images/footer_icon3_active.png) 10% center no-repeat #000;
 }
 
 /*media*/

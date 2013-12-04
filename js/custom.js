@@ -1,5 +1,3 @@
-var tempHTML = "";
-
 function goTo(page)
 {
 	//alert(page);
@@ -197,13 +195,17 @@ function onDeviceReady() {
 }
 
 function checkDeviceStatus() {
-	showLoader();
-		setTimeout(function(){hideLoader();},3000);
-	if(navigator.connection) {
-	    
+	if(navigator.connection) {	    
 		checkConnection();
 		navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onGeolocationError , {  maximumAge: 3000, timeout: 5000, enableHighAccuracy: true });
 	}
+}
+
+function deliveryCheckRefresh() {
+	showLoader();
+	setTimeout(function(){hideLoader();},2000);
+	checkDeviceStatus();
+
 }
 
 function checkConnection() {
@@ -400,7 +402,7 @@ function getAuditList()
 	  {
 			//console.log(data.hasOwnProperty("dist_nrr"));from_ivr
 			//console.log(JSON.stringify(data));			
-			/*data= {"from_ivr":[{"cont_nr":9808236,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"N","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9806236,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"N","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9808636,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"C","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9908636,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"Q","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9918636,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"Q","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9918736,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"Q","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9918746,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"N","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9919746,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"Q","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9919746,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"N","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9919746,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"A","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9919746,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"C","dist_nr":3050234,"ivr_serv_dtime":moment(),"ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null}]};*/
+			data= {"from_ivr":[{"cont_nr":9808236,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"N","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9806236,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"N","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9808636,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"C","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9908636,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"Q","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9918636,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"Q","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9918736,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"Q","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9918746,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"N","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9919746,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"Q","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9919746,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"N","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9919746,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"A","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9919746,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"C","dist_nr":3050234,"ivr_serv_dtime":moment(),"ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null}]};
 			auditSuccess(data);
       },
       error: function(jqXHR, textStatus, errorThrown)	  
@@ -417,7 +419,6 @@ function getAuditList()
 }
 
 function auditSuccess(data) {
-    //alert(data);
     var selectAreaList = new Array();
 	if(data.from_ivr.length)
 	{	
@@ -503,8 +504,7 @@ function auditSuccess(data) {
 					alert("No Data found");						
 				}
 			}
-		//});
-				
+		//});				
 	}
 	else 
 	{
@@ -516,7 +516,6 @@ function auditSuccess(data) {
 			setTimeout(function(){goBack('menu')});
 		}
 	}
-
 }
 
 function deliveryCheck(walker_no,cw,dt,area,dist_net)
@@ -568,29 +567,43 @@ function deliveryCheckObject(guid, unique_identifier, dist_nr, dist_name,device_
 var deliveryCheckConfirmations = [];
 // add objects to the array
 
-
-function delivery_confirmation_action() {	
-	var count = parseInt(localStorage.getItem("delivery_confirmation_count"));
-	if(count < 6) {
-		count++;
-		var unique_identifier  = localStorage.getItem("unique_identifier");  // "9774d56d682e549c";
-		var guid = (S4() + S4() + "-" + S4() + "-4" + S4().substr(0,3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
-		//var lat = "30";//position.coords.latitude;
-		//var lng = "40";//position.coords.longitude	yyyy-mm-dd HH:MM:SS			
-		localStorage.setItem("delivery_confirmation_count",count);
-		$("#delivery_confirmation_count").text(count);
-		navigator.geolocation.getCurrentPosition(function(position){
-			deliveryCheckConfirmations.push(new deliveryCheckObject(guid, unique_identifier, localStorage.getItem("dist_nr"), localStorage.getItem("distName"),moment().format("YYYY-MM-DD HH:MM:ss"),moment().format("YYYY-MM-DD HH:MM:ss"),localStorage.getItem("DIST_NET_CODE"),localStorage.getItem("AUDIT_CW"),localStorage.getItem("AUDIT_DT"),position.coords.latitude,position.coords.longitude));
-		}, function(error){			
-		navigator.notification.alert("Could not retreive current location due to "+error.message, null, 'Delivery Checks', 'Ok');
-	    } , {  maximumAge: 3000, timeout: 5000, enableHighAccuracy: true });
-		
+function delivery_confirmation_action() {
+    var filename = $("#location_status_icon").attr("src");	
+	var splitArray = filename.split("/");
+	var image = splitArray[splitArray.length-1];
+	if(image == 'location_available.png') {
+	    var count = parseInt(localStorage.getItem("delivery_confirmation_count"));
+		if(count < 6) {
+			showLoader();
+			count++;
+			var unique_identifier  = localStorage.getItem("unique_identifier");  // "9774d56d682e549c";
+			var guid = (S4() + S4() + "-" + S4() + "-4" + S4().substr(0,3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
+			//var lat = "30";//position.coords.latitude;
+			//var lng = "40";//position.coords.longitude	yyyy-mm-dd HH:MM:SS			
+			navigator.geolocation.getCurrentPosition(function(position){
+				deliveryCheckConfirmations.push(new deliveryCheckObject(guid, unique_identifier, localStorage.getItem("dist_nr"), localStorage.getItem("distName"),moment().format("YYYY-MM-DD HH:MM:ss"),moment().format("YYYY-MM-DD HH:MM:ss"),localStorage.getItem("DIST_NET_CODE"),localStorage.getItem("AUDIT_CW"),localStorage.getItem("AUDIT_DT"),position.coords.latitude,position.coords.longitude));
+				localStorage.setItem("delivery_checks",JSON.stringify(deliveryCheckConfirmations));
+				localStorage.setItem("delivery_confirmation_count",count);
+				$("#delivery_confirmation_count").text(count);
+				hideLoader();
+			}, function(error){
+			hideLoader();
+			navigator.notification.alert("Could not retreive current location due to "+error.message, null, 'Delivery Checks', 'Ok');
+			} , {  maximumAge: 3000, timeout: 5000, enableHighAccuracy: true });
+			
+		}else{
+			if(navigator.notification) {
+				navigator.notification.alert("You can confirm maximum 6 times", null, 'Delivery Checks', 'Ok');
+			}else{
+				alert("You can confirm maximum 6 times");						
+			}	   
+		}		
 	}else{
 		if(navigator.notification) {
-			navigator.notification.alert("You can confirm maximum 6 times", null, 'Delivery Checks', 'Ok');
+				navigator.notification.alert("Location not available.Please try again", null, 'Delivery Checks', 'Ok');
 		}else{
-			alert("You can confirm maximum 6 times");						
-		}	   
+				alert("Location not available.Please try again");						
+		}
 	}
 }
 
@@ -606,16 +619,14 @@ function submitDeliveryConfirmation()
 	//var dt = {"Count" : "1"};	
 	//alert(dt.Count);	
 	//console.log(JSON.stringify(deliveryCheckConfirmations));	
-	
-	if(deliveryCheckConfirmations.length > 0) {
-		
+	if(deliveryCheckConfirmations.length > 0) {		
 		$.ajax({
 		  url: "https://support.mobiliseit.com/PMP/PDAservice.asmx/SubmitDeliveryConfirmation",
 		  type: "POST",
 		  data: deliveryCheckConfirmations.shift(),
 		  success:function(data, textStatus, jqXHR)
 		  {		
-			// success callback			
+			//success callback			
 			//alert('Delivery Checks success'+data.Count);
 			if(deliveryCheckConfirmations.length == 0) {
 				hideLoader();
