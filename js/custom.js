@@ -160,8 +160,8 @@ function closePopUp()
 
 function markJobAsComplete()
 {
-	console.log('del_terr_cd'+$('span.del_terr_cd').first().html());
-	console.log('cont_inv_nr'+$('span.cont_inv_nr').first().html());
+	//console.log('del_terr_cd'+$('span.del_terr_cd').first().html());
+	//console.log('cont_inv_nr'+$('span.cont_inv_nr').first().html());
 	showLoader();
 	//var UTCstring = (new Date()).toUTCString();
 	//console.log(UTCstring);	
@@ -190,9 +190,10 @@ function markJobAsComplete()
 // device APIs are available
 //
 function onDeviceReady() {
-	//document.addEventListener("backbutton", delivery_check_back, false);
+	 //document.addEventListener("backbutton", delivery_check_back, false);
 	 //
 	 //navigator.notification.alert("Unique identifier "+device.uuid, null, 'PMP', 'Ok');
+	 localStorage.setItem("unique_identifier",device.uuid);
 }
 
 function checkDeviceStatus() {
@@ -295,6 +296,7 @@ function login()
 			{
 				
 				localStorage.setItem("dist_nr",data.dist_nr);
+				localStorage.setItem("distName",data.dist_nm);
 				//console.log('Distributor number is '+localStorage.getItem("dist_nr"));
 				setTimeout(function(){
 					//goTo('menu');
@@ -332,13 +334,14 @@ function logout()
 		play_audit_sound = localStorage.getItem("play_audit_sound");
 	}	
 	if(localStorage.getItem("play_query_sound")!= null) {	
-		play_audit_sound = localStorage.getItem("play_query_sound");
+		play_query_sound = localStorage.getItem("play_query_sound");
 	}
 	localStorage.clear();
 	setTimeout(function(){
 		//document.location = "index.html";
 		localStorage.setItem("play_audit_sound",play_audit_sound);
 		localStorage.setItem("play_query_sound",play_query_sound);
+		//alert(play_audit_sound+' : '+play_query_sound);
 		$.mobile.changePage( "main.html", { transition: "slide" , reverse : true} );
 	});
 }
@@ -422,12 +425,12 @@ function auditSuccess(data) {
 			//console.log(audit_template_html);
 			var html = "";
 			var catalogCount = 0;
-			tempHTML = $("#audit_template").html();
+			
+			var audit_template_html = $("#audit_template").html();
+			
 			$.each(data.from_ivr, function(i,audits){
 				//console.log(JSON.stringify(audits));
-					
-				//alert(tempHTML);			
-				//tempHTML =  audit_template_html;
+				tempHTML =  audit_template_html;
 				tempHTML = tempHTML.replace(/{{DIST_NR}}/gi, audits.area_cd);
 				tempHTML = tempHTML.replace(/{{CONT_INV_NR}}/gi, audits.cont_inv_nr);
 				tempHTML = tempHTML.replace(/{{CONT_NR}}/gi, audits.cont_nr);		
@@ -454,6 +457,8 @@ function auditSuccess(data) {
 					class_name = "delivery_audit_bg3";
 				}*/
 				tempHTML = tempHTML.replace(/{{class_name}}/gi, class_name);
+				
+				//console.log(tempHTML);
 				
 				if(localStorage.getItem('delivery_catalog_filter') == null) {						
 					
@@ -508,13 +513,13 @@ function auditSuccess(data) {
 			navigator.notification.alert("No Data found", function(){goBack('menu')}, 'Delivery Audit', 'Ok');
 		}else{
 			alert("No Data found");
-			setTimeout(function(){history.back()});
+			setTimeout(function(){goBack('menu')});
 		}
 	}
 
 }
 
-function deliveryCheck(walker_no,cw,dt,area)
+function deliveryCheck(walker_no,cw,dt,area,dist_net)
 {
 		
 	//console.log(walker_no+'-'+cw+'-'+dt+'-'+area);	
@@ -522,6 +527,7 @@ function deliveryCheck(walker_no,cw,dt,area)
 	localStorage.setItem("AUDIT_CW",cw);	
 	localStorage.setItem("AUDIT_DT",dt);
 	localStorage.setItem("AUDIT_AREA",area);
+	localStorage.setItem("DIST_NET_CODE",dist_net);
 	goTo('deliverycheck');
 	
 }
@@ -544,14 +550,94 @@ function getAuditDetail()
 	checkDeviceStatus();
 }
 
-function delivery_confirmation_action() {
-	
+function deliveryCheckObject(guid, unique_identifier, dist_nr, dist_name,device_time,utc_time,dist_net_code,audit_cw,audit_dt,lat,lng) {
+  this.fromPdaId = guid;
+  this.imei = unique_identifier;
+  this.distNr = dist_nr;
+  this.distName = dist_name;
+  this.deviceTime = device_time;
+  this.utcTime = utc_time;
+  this.distNetCode = dist_net_code;
+  this.contInvNr = audit_cw;
+  this.delTerrCd = audit_dt;
+  this.latitude = lat;
+  this.longitude = lng;
+}
+
+// create an array restaurants
+var deliveryCheckConfirmations = [];
+// add objects to the array
+
+
+function delivery_confirmation_action() {	
 	var count = parseInt(localStorage.getItem("delivery_confirmation_count"));
 	if(count < 6) {
-	count++;
-	localStorage.setItem("delivery_confirmation_count",count);
-	$("#delivery_confirmation_count").text(count);
+		count++;
+		var unique_identifier  = localStorage.getItem("unique_identifier");  // "9774d56d682e549c";
+		var guid = (S4() + S4() + "-" + S4() + "-4" + S4().substr(0,3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
+		//var lat = "30";//position.coords.latitude;
+		//var lng = "40";//position.coords.longitude	yyyy-mm-dd HH:MM:SS			
+		localStorage.setItem("delivery_confirmation_count",count);
+		$("#delivery_confirmation_count").text(count);
+		navigator.geolocation.getCurrentPosition(function(position){
+			deliveryCheckConfirmations.push(new deliveryCheckObject(guid, unique_identifier, localStorage.getItem("dist_nr"), localStorage.getItem("distName"),moment().format("YYYY-MM-DD HH:MM:ss"),moment().format("YYYY-MM-DD HH:MM:ss"),localStorage.getItem("DIST_NET_CODE"),localStorage.getItem("AUDIT_CW"),localStorage.getItem("AUDIT_DT"),position.coords.latitude,position.coords.longitude));
+		}, function(error){			
+		navigator.notification.alert("Could not retreive current location due to "+error.message, null, 'Delivery Checks', 'Ok');
+	    } , {  maximumAge: 3000, timeout: 5000, enableHighAccuracy: true });
+		
+	}else{
+		if(navigator.notification) {
+			navigator.notification.alert("You can confirm maximum 6 times", null, 'Delivery Checks', 'Ok');
+		}else{
+			alert("You can confirm maximum 6 times");						
+		}	   
 	}
+}
+
+function S4() {
+    return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+}
+ 
+function submitDeliveryConfirmation()
+{
+	showLoader();
+	//var UTCstring = (new Date()).toUTCString();DD MMM YYYY HH:mm
+	//console.log(UTCstring);9774d56d682e549c	
+	//var dt = {"Count" : "1"};	
+	//alert(dt.Count);	
+	//console.log(JSON.stringify(deliveryCheckConfirmations));	
+	
+	if(deliveryCheckConfirmations.length > 0) {
+		
+		$.ajax({
+		  url: "https://support.mobiliseit.com/PMP/PDAservice.asmx/SubmitDeliveryConfirmation",
+		  type: "POST",
+		  data: deliveryCheckConfirmations.shift(),
+		  success:function(data, textStatus, jqXHR)
+		  {		
+			// success callback			
+			//alert('Delivery Checks success'+data.Count);
+			if(deliveryCheckConfirmations.length == 0) {
+				hideLoader();
+				goBack('delivery_audit');
+			}else{
+				setTimeout(submitDeliveryConfirmation(),0);
+			}
+		  },
+		  error: function(jqXHR, textStatus, errorThrown)
+		  {
+			 hideLoader();
+			 storeDeliveryConfirmation();			
+		   }	  
+		});	
+	}else{
+		hideLoader();
+		goBack('delivery_audit');
+	}
+}
+
+function storeDeliveryConfirmation()
+{
 
 }
 
@@ -573,9 +659,21 @@ function delivery_check_back() {
 	}else if($.mobile.activePage.attr('id') == "menu"){
 		setTimeout(function(){back()});
 	}*/
-	if($.mobile.activePage.attr('id') != "menu"){
+	/*if($.mobile.activePage.attr('id') != "menu"){
 		setTimeout(function(){back()});
+	}else if($.mobile.activePage.attr('id') == "delivery_check"){
+		alert('delivery_check');
+		//submitDeliveryConfirmation(1);	
+	}*/	
+	var networkState = navigator.connection.type;
+	if(networkState == Connection.NONE) {
+		// Store data in sqllite
+	}else{
+	  navigator.geolocation.getCurrentPosition(submitDeliveryConfirmation, function(error){			
+		navigator.notification.alert("Could not retreive current location due to "+error.message, null, 'Delivery Checks', 'Ok');
+	  } , {  maximumAge: 3000, timeout: 5000, enableHighAccuracy: true });
 	}
+	//submitDeliveryConfirmation(1);
 }
 
 function getOutstandingJobs()
@@ -841,6 +939,7 @@ $(document).on("pageshow", "#settings", function( event ) {
 	setTimeout(function(){loadPreferences()});	
 });
 
+
 function loadPreferences() {
 
 	if(localStorage.getItem("play_audit_sound")!= null && localStorage.getItem("play_audit_sound") == "yes") {	
@@ -855,3 +954,9 @@ function loadPreferences() {
 		}
 	}						
 }
+
+$( document ).bind( "mobileinit", function() {
+    // Make your jQuery Mobile framework configuration changes here!
+    $.support.cors = true;
+    $.mobile.allowCrossDomainPages = true;
+});
