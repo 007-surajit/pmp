@@ -22,6 +22,7 @@
     -->
     <feature name="http://api.phonegap.com/1.0/device" />
 	<feature name="http://api.phonegap.com/1.0/network"/>
+	<feature name="http://api.phonegap.com/1.0/geolocation"/>
 	<feature name="NetworkStatus">
 		<param name="android-package" value="org.apache.cordova.NetworkManager" />
 		<param name="ios-package" value="CDVConnection" />
@@ -34,6 +35,12 @@
 	<feature name="Device">
 		<param name="android-package" value="org.apache.cordova.device.Device" />
 	</feature>
+	<feature name="SplashScreen">
+		<param name="android-package" value="org.apache.cordova.splashscreen.SplashScreen" />
+		<param name="ios-package" value="CDVSplashScreen" />
+	</feature>
+
+	
 
 
 	<gap:platform name="ios" />
@@ -41,6 +48,7 @@
 	
 	<preference name="phonegap-version" value="3.1.0" />
 	<preference name="webviewbounce" value="false" />
+	<preference name="splash-screen-duration" value="30000"/>
 
 	
 	<!--<preference name="orientation" value="portrait" />-->
@@ -80,6 +88,7 @@
 	<gap:plugin name="org.apache.cordova.network-information" />
 	<gap:plugin name="org.apache.cordova.geolocation" />
 	<gap:plugin name="org.apache.cordova.device" />
+	<gap:plugin name="org.apache.cordova.splashscreen" />
 	 
 	
     <access origin="*" />

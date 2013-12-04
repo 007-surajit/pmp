@@ -190,8 +190,9 @@ function markJobAsComplete()
 function onDeviceReady() {
 	 //document.addEventListener("backbutton", delivery_check_back, false);
 	 //
-	 //navigator.notification.alert("Unique identifier "+device.uuid, null, 'PMP', 'Ok');
-	 localStorage.setItem("unique_identifier",device.uuid);
+	 navigator.splashscreen.hide();
+	 navigator.notification.alert("Unique identifier "+device.uuid, null, 'PMP', 'Ok');
+	 localStorage.setItem("unique_identifier",device.uuid);	 
 }
 
 function checkDeviceStatus() {
@@ -344,7 +345,7 @@ function logout()
 		localStorage.setItem("play_audit_sound",play_audit_sound);
 		localStorage.setItem("play_query_sound",play_query_sound);
 		//alert(play_audit_sound+' : '+play_query_sound);
-		$.mobile.changePage( "main.html", { transition: "slide" , reverse : true} );
+		$.mobile.changePage( "index.html", { transition: "slide" , reverse : true} );
 	});
 }
 
