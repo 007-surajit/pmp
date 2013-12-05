@@ -49,7 +49,7 @@
 </head>
 
 <body onload="onBodyLoad()">
-<div id="login">
+<div data-role="page" id="login">
 <!--header-->
 <div class="container header1">
     <div class="row-fluid">
@@ -92,13 +92,9 @@
 </div>
 
 <!--Loader-->
-<div id="loader" style="display:none">
-  <div class="container" id="custom" style="margin-top:250px">
-	 <div class="row-fluid" >	 
-	  <div class="span10 offset5">		 	
-			<img src="images/loadinfo.gif" />						
-	  </div>
-	 </div>	 
+<div id="loader" style="display:none;">
+  <div id="custom" style="width:100%;text-align:center;vertical-align:middle;">  		 	
+		<img src="images/loadinfo.gif"/>	  
   </div>
 </div>
 
