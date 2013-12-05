@@ -583,7 +583,7 @@ function delivery_confirmation_action() {
 			var guid = (S4() + S4() + "-" + S4() + "-4" + S4().substr(0,3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
 			//var lat = "30";//position.coords.latitude;
 			//var lng = "40";//position.coords.longitude	yyyy-mm-dd HH:MM:SS			 
-			/navigator.geolocation.getCurrentPosition(function(position){
+			//navigator.geolocation.getCurrentPosition(function(position){
 			deliveryCheckConfirmations.push(new deliveryCheckObject(guid, unique_identifier, localStorage.getItem("dist_nr"), localStorage.getItem("distName"),moment().format("YYYY-MM-DD HH:MM:ss"),moment().format("YYYY-MM-DD HH:MM:ss"),localStorage.getItem("DIST_NET_CODE"),localStorage.getItem("AUDIT_CW"),localStorage.getItem("AUDIT_DT"),localStorage.getItem("device_latitude"),localStorage.getItem("device_longitude")));
 			localStorage.setItem("delivery_checks",JSON.stringify(deliveryCheckConfirmations));
 			localStorage.setItem("delivery_confirmation_count",count);
