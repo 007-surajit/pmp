@@ -1,3 +1,5 @@
+var watchId = "";
+
 function goTo(page)
 {
 	//alert(page);
@@ -13,6 +15,13 @@ function back()
 function goBack(page) 
 {
 	$.mobile.changePage( page+".html", { transition: "slide" , reverse: true} );
+}
+
+function onBodyLoad()
+{
+		document.addEventListener("deviceready", onDeviceReady,false);
+		//console.log(new Date().getTime()+' '+moment().unix()+' '+moment.utc());
+		//submitFromPda();
 }
 
 function submitFromPda()
@@ -192,14 +201,39 @@ function onDeviceReady() {
 	 //document.addEventListener("backbutton", delivery_check_back, false);
 	 //
 	 navigator.splashscreen.hide();
+	 watchId = navigator.geolocation.watchPosition(onGeolocationSuccess,onGeolocationError,{  maximumAge: 35000, timeout: 10000, enableHighAccuracy: true });
 	 //navigator.notification.alert("Unique identifier "+device.uuid, null, 'PMP', 'Ok');
 	 localStorage.setItem("unique_identifier",device.uuid);	 
 }
 
 function checkDeviceStatus() {
-	if(navigator.connection) {	    
-		checkConnection();
-		navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onGeolocationError , {  maximumAge: 35000, timeout: 10000, enableHighAccuracy: true });
+	if(navigator.connection) {    
+		
+		/* Update network icon 	*/		
+		var networkState = navigator.connection.type;    
+		var filename = $("#network_status_icon").attr("src");	
+		var splitArray = filename.lastIndexOf("/");
+		var newfilename = "";	 
+		if(networkState == Connection.NONE) {	 
+			newfilename = filename.substring(0,splitArray)+'/'+'no_network_status.png';			
+		}else{	 
+			newfilename = filename.substring(0,splitArray)+'/'+'network_status.png';			
+		}
+		$("#network_status_icon").attr("src",newfilename);
+		
+		/* Update location icon */		
+		filename = $("#location_status_icon").attr("src");	
+		splitArray = filename.lastIndexOf("/");
+		if(localStorage.getItem("location_error") == "nil") {
+		
+			newfilename = filename.substring(0,splitArray)+'/'+'location_available.png';			
+			$("#location_status_icon").attr("src",newfilename);
+		
+		}else{
+				
+			newfilename = filename.substring(0,splitArray)+'/'+'location_status.png';	 
+			$("#location_status_icon").attr("src",newfilename);
+		}		
 	}
 }
 
@@ -209,35 +243,6 @@ function deliveryCheckRefresh() {
 	checkDeviceStatus();
 
 }
-
-function checkConnection() {
-    var networkState = navigator.connection.type;
-    /*var states = {};
-    states[Connection.UNKNOWN]  = 'Unknown connection';
-    states[Connection.ETHERNET] = 'Ethernet connection';
-    states[Connection.WIFI]     = 'WiFi connection';
-    states[Connection.CELL_2G]  = 'Cell 2G connection';
-    states[Connection.CELL_3G]  = 'Cell 3G connection';
-    states[Connection.CELL_4G]  = 'Cell 4G connection';
-    states[Connection.CELL]     = 'Cell generic connection';
-    states[Connection.NONE]     = 'No network connection';
-    //alert('Connection type: ' + states[networkState]);
-	if(navigator.notification) {
-			navigator.notification.alert('Connection type: ' + states[networkState], null, 'PMP', 'Ok');
-	 }else{
-		alert('Connection type: ' + states[networkState]);
-	 }*/		
-	 var filename = $("#network_status_icon").attr("src");	
-	 var splitArray = filename.lastIndexOf("/");
-	 var newfilename = "";	 
-	 if(networkState == Connection.NONE) {	 
-		newfilename = filename.substring(0,splitArray)+'/'+'no_network_status.png';			
-	 }else{	 
-		newfilename = filename.substring(0,splitArray)+'/'+'network_status.png';			
-	 }
-	 $("#network_status_icon").attr("src",newfilename);
-}
-
 // onSuccess Geolocation
 //
 function onGeolocationSuccess(position) {
@@ -251,10 +256,9 @@ function onGeolocationSuccess(position) {
 						'Speed: '             + position.coords.speed            + '<br />' +
 						'Timestamp: '         + position.timestamp               + '<br />';*/
 	//navigator.notification.alert('Latitude: ' + position.coords.latitude + ' Longitude: ' + position.coords.longitude, null, 'PMP', 'Ok');
-	 var filename = $("#location_status_icon").attr("src");	
-	 var splitArray = filename.lastIndexOf("/");
-	 var newfilename = filename.substring(0,splitArray)+'/'+'location_available.png';			
-	 $("#location_status_icon").attr("src",newfilename);
+	 localStorage.setItem("device_latitude",position.coords.latitude);
+	 localStorage.setItem("device_longitude",position.coords.longitude);
+     localStorage.setItem("location_error","nil");		 
 }
 
 // onError Callback receives a PositionError object
@@ -263,16 +267,12 @@ function onGeolocationError(error) {
 	/*alert('code: '    + error.code    + '\n' +
 		  'message: ' + error.message + '\n');*/
     //navigator.notification.alert('code: ' + error.code    + '\n' + 'message: ' + error.message, null, 'PMP', 'Ok');
-	var filename = $("#location_status_icon").attr("src");	
-	var splitArray = filename.lastIndexOf("/");
-	var newfilename = filename.substring(0,splitArray)+'/'+'location_status.png';	 
-	$("#location_status_icon").attr("src",newfilename);
+	localStorage.setItem("location_error",error.message);	
 }
 
 function login()
 {
 	//console.log('login');
-	//checkConnection();    	
 	if($('input[name="username"]').val() == '') {
 		if(navigator.notification) {
 			navigator.notification.alert("Username field is blank", null, 'Login', 'Ok');
@@ -582,17 +582,17 @@ function delivery_confirmation_action() {
 			var unique_identifier  = localStorage.getItem("unique_identifier");  // "9774d56d682e549c";
 			var guid = (S4() + S4() + "-" + S4() + "-4" + S4().substr(0,3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
 			//var lat = "30";//position.coords.latitude;
-			//var lng = "40";//position.coords.longitude	yyyy-mm-dd HH:MM:SS			
-			navigator.geolocation.getCurrentPosition(function(position){
-				deliveryCheckConfirmations.push(new deliveryCheckObject(guid, unique_identifier, localStorage.getItem("dist_nr"), localStorage.getItem("distName"),moment().format("YYYY-MM-DD HH:MM:ss"),moment().format("YYYY-MM-DD HH:MM:ss"),localStorage.getItem("DIST_NET_CODE"),localStorage.getItem("AUDIT_CW"),localStorage.getItem("AUDIT_DT"),position.coords.latitude,position.coords.longitude));
-				localStorage.setItem("delivery_checks",JSON.stringify(deliveryCheckConfirmations));
-				localStorage.setItem("delivery_confirmation_count",count);
-				$("#delivery_confirmation_count").text(count);
-				hideLoader();
-			}, function(error){
+			//var lng = "40";//position.coords.longitude	yyyy-mm-dd HH:MM:SS			 
+			/navigator.geolocation.getCurrentPosition(function(position){
+			deliveryCheckConfirmations.push(new deliveryCheckObject(guid, unique_identifier, localStorage.getItem("dist_nr"), localStorage.getItem("distName"),moment().format("YYYY-MM-DD HH:MM:ss"),moment().format("YYYY-MM-DD HH:MM:ss"),localStorage.getItem("DIST_NET_CODE"),localStorage.getItem("AUDIT_CW"),localStorage.getItem("AUDIT_DT"),localStorage.getItem("device_latitude"),localStorage.getItem("device_longitude")));
+			localStorage.setItem("delivery_checks",JSON.stringify(deliveryCheckConfirmations));
+			localStorage.setItem("delivery_confirmation_count",count);
+			$("#delivery_confirmation_count").text(count);
+			hideLoader();
+			/*}, function(error){
 			hideLoader();
 			navigator.notification.alert("Could not retreive current location due to "+error.message, null, 'Delivery Checks', 'Ok');
-			} , {  maximumAge: 35000, timeout: 10000, enableHighAccuracy: true });
+			} , {  maximumAge: 35000, timeout: 10000, enableHighAccuracy: true });*/
 			
 		}else{
 			if(navigator.notification) {
