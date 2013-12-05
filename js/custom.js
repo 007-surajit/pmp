@@ -228,11 +228,22 @@ function checkDeviceStatus() {
 		
 			newfilename = filename.substring(0,splitArray)+'/'+'location_available.png';			
 			$("#location_status_icon").attr("src",newfilename);
-		
+			if(!$("#check_submit_btn").hasClass("input_bg")) {
+				$("#check_submit_btn").addClass("input_bg");
+			}
+			if($("#check_submit_btn").hasClass("disable")) {
+				$("#check_submit_btn").removeClass("disable");
+			}		
 		}else{
 				
 			newfilename = filename.substring(0,splitArray)+'/'+'location_status.png';	 
 			$("#location_status_icon").attr("src",newfilename);
+			if($("#check_submit_btn").hasClass("input_bg")) {
+				$("#check_submit_btn").removeClass("input_bg");
+			}
+			if(!$("#check_submit_btn").hasClass("disable")) {
+				$("#check_submit_btn").addClass("disable");
+			}
 		}		
 	}
 }
@@ -595,18 +606,24 @@ function delivery_confirmation_action() {
 			} , {  maximumAge: 35000, timeout: 10000, enableHighAccuracy: true });*/
 			
 		}else{
-			if(navigator.notification) {
+			/*if(navigator.notification) {
 				navigator.notification.alert("You can confirm maximum 6 times", null, 'Delivery Checks', 'Ok');
 			}else{
 				alert("You can confirm maximum 6 times");						
-			}	   
+			}*/
+			if($("#check_submit_btn").hasClass("input_bg")) {
+				$("#check_submit_btn").removeClass("input_bg");
+			}
+			if(!$("#check_submit_btn").hasClass("disable")) {
+				$("#check_submit_btn").addClass("disable");
+			}
 		}		
 	}else{
-		if(navigator.notification) {
+		/*if(navigator.notification) {
 				navigator.notification.alert("Location not available.Please try again", null, 'Delivery Checks', 'Ok');
 		}else{
 				alert("Location not available.Please try again");						
-		}
+		}*/
 	}
 }
 

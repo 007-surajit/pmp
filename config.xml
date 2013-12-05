@@ -20,10 +20,10 @@
         Enable individual API permissions here.
         The "device" permission is required for the 'deviceready' event.
     -->
-    <feature name="http://api.phonegap.com/1.0/device" />
+    <!--<feature name="http://api.phonegap.com/1.0/device" />
 	<feature name="http://api.phonegap.com/1.0/network"/>
-	<feature name="http://api.phonegap.com/1.0/geolocation"/>
-	<!--<feature name="NetworkStatus">
+	<feature name="http://api.phonegap.com/1.0/geolocation"/>-->
+	<feature name="NetworkStatus">
 		<param name="android-package" value="org.apache.cordova.NetworkManager" />
 		<param name="ios-package" value="CDVConnection" />
 	</feature>
@@ -37,12 +37,12 @@
 	<feature name="SplashScreen">
 		<param name="android-package" value="org.apache.cordova.splashscreen.SplashScreen" />
 		<param name="ios-package" value="CDVSplashScreen" />
-	</feature>-->
+	</feature>
 
 	<gap:platform name="ios" />
 	<gap:platform name="android" />
 	
-	<preference name="phonegap-version" value="3.1.0" />
+	<preference name="phonegap-version" value="3.2.0" />
 	<preference name="webviewbounce" value="false" />
 	<preference name="splashScreenDelay" value="60000"/>
 	<preference name="loadUrlTimeoutValue" value="60000"/>	

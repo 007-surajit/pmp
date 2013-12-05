@@ -115,6 +115,11 @@ hr {
 	background:  url(../images/btn_bg2.png) left top repeat-x;
 }
 
+.form .disable{
+ padding: 6px;
+ background:  url(../images/disable_bg.png) left top repeat-x !important;
+}
+
 /*.form .input_bg:active {
 	background:  url(../images/btn_bg_active.png) left top repeat-x #0075ab;
 } */
