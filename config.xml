@@ -27,7 +27,6 @@
 		<param name="android-package" value="org.apache.cordova.NetworkManager" />
 		<param name="ios-package" value="CDVConnection" />
 	</feature>
-	<feature name="http://api.phonegap.com/1.0/geolocation"/>
 	<feature name="Geolocation">
 		<param name="android-package" value="org.apache.cordova.GeoBroker" />
 		<param name="ios-package" value="CDVLocation" />
@@ -40,16 +39,13 @@
 		<param name="ios-package" value="CDVSplashScreen" />
 	</feature>
 
-	
-
-
 	<gap:platform name="ios" />
 	<gap:platform name="android" />
 	
 	<preference name="phonegap-version" value="3.1.0" />
 	<preference name="webviewbounce" value="false" />
-	<preference name="splash-screen-duration" value="30000"/>
-
+	<preference name="splashScreenDelay" value="60000"/>
+	<preference name="loadUrlTimeoutValue" value="60000"/>	
 	
 	<!--<preference name="orientation" value="portrait" />-->
 

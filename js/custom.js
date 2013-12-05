@@ -198,7 +198,7 @@ function onDeviceReady() {
 function checkDeviceStatus() {
 	if(navigator.connection) {	    
 		checkConnection();
-		navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onGeolocationError , {  maximumAge: 3000, timeout: 5000, enableHighAccuracy: true });
+		navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onGeolocationError , {  maximumAge: 35000, timeout: 10000, enableHighAccuracy: true });
 	}
 }
 
@@ -590,7 +590,7 @@ function delivery_confirmation_action() {
 			}, function(error){
 			hideLoader();
 			navigator.notification.alert("Could not retreive current location due to "+error.message, null, 'Delivery Checks', 'Ok');
-			} , {  maximumAge: 3000, timeout: 5000, enableHighAccuracy: true });
+			} , {  maximumAge: 35000, timeout: 10000, enableHighAccuracy: true });
 			
 		}else{
 			if(navigator.notification) {
@@ -683,7 +683,7 @@ function delivery_check_back() {
 	}else{
 	  navigator.geolocation.getCurrentPosition(submitDeliveryConfirmation, function(error){			
 		navigator.notification.alert("Could not retreive current location due to "+error.message, null, 'Delivery Checks', 'Ok');
-	  } , {  maximumAge: 3000, timeout: 5000, enableHighAccuracy: true });
+	  } , {  maximumAge: 35000, timeout: 10000, enableHighAccuracy: true });
 	}
 	//submitDeliveryConfirmation(1);
 }
