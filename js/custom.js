@@ -191,7 +191,7 @@ function onDeviceReady() {
 	 //document.addEventListener("backbutton", delivery_check_back, false);
 	 //
 	 navigator.splashscreen.hide();
-	 navigator.notification.alert("Unique identifier "+device.uuid, null, 'PMP', 'Ok');
+	 //navigator.notification.alert("Unique identifier "+device.uuid, null, 'PMP', 'Ok');
 	 localStorage.setItem("unique_identifier",device.uuid);	 
 }
 

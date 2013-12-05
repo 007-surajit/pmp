@@ -79,6 +79,11 @@
 	<gap:splash src="res/screen/ios/screen-iphone-land.png"    gap:platform="ios"     width="480" height="320" />
     <gap:splash src="res/screen/ios/screen-iphone-land-2x.png" gap:platform="ios"     width="960" height="640" /> 
 	<gap:splash src="res/screen/ios/screen-iphone-land-568h-2x.png" gap:platform="ios" width="1136" height="640" />
+	<gap:splash src="res/screen/ios/splash_ipad_landscape.png" gap:platform="ios" width="1024" height="768" />
+	<gap:splash src="res/screen/ios/splash_ipad_portrait.png" gap:platform="ios" width="768" height="1024" />
+	<gap:splash src="res/screen/ios/splash_ipad_retina_landscape.png" gap:platform="ios" width="2048" height="1536" />
+	<gap:splash src="res/screen/ios/splash_ipad_retina_portrait.png" gap:platform="ios" width="1536" height="2048" />
+	
 	
 	<gap:plugin name="org.apache.cordova.dialogs" />
 	<gap:plugin name="org.apache.cordova.network-information" />
