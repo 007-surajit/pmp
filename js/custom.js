@@ -201,7 +201,7 @@ function onDeviceReady() {
 	 //document.addEventListener("backbutton", delivery_check_back, false);
 	 //
 	 navigator.splashscreen.hide();
-	 watchId = navigator.geolocation.watchPosition(onGeolocationSuccess,onGeolocationError,{  maximumAge: 35000, timeout: 10000, enableHighAccuracy: true });
+	 watchId = navigator.geolocation.watchPosition(onGeolocationSuccess,onGeolocationError,{  maximumAge: 3000, timeout: 5000,, enableHighAccuracy: true });
 	 //navigator.notification.alert("Unique identifier "+device.uuid, null, 'PMP', 'Ok');
 	 localStorage.setItem("unique_identifier",device.uuid);	 
 }
@@ -948,15 +948,6 @@ $(document).on("pageshow", "#selectarea", function( event ) {
 	populateSelectList();
 });
 
-$(document).on("pageshow", "#login", function( event ) {
-	//populateSelectList();
-	//setTimeout(function(){alert($("#custom").height())},5000);
-	//alert($("#custom").css("height"));
-	//$("#custom").css("marginLeft",window.innerWidth/2-wi);
-});
-
-
-
 $(document).on("pageshow", "#settings", function( event ) {
 	$(".settings_icon").click(function(){
 		$(this).toggleClass("thikbg");
@@ -995,11 +986,11 @@ function loadPreferences() {
 	}						
 }
 
-$( document ).bind( "mobileinit", function() {
+/*$( document ).bind( "mobileinit", function() {
     // Make your jQuery Mobile framework configuration changes here!
     $.support.cors = true;
     $.mobile.allowCrossDomainPages = true;
-});
+});*/
 
 window.onorientationchange = function(){
     if($("#loaderOverlay #custom")) {

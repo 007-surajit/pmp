@@ -42,7 +42,7 @@
 	<gap:platform name="ios" />
 	<gap:platform name="android" />
 	
-	<preference name="phonegap-version" value="3.0.0" />
+	<preference name="phonegap-version" value="3.1.0" />
 	<preference name="webviewbounce" value="false" />
 	<preference name="splashScreenDelay" value="60000"/>
 	<preference name="loadUrlTimeoutValue" value="60000"/>	
