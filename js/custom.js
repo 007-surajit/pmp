@@ -833,8 +833,8 @@ function catalogfilter(filterType)
 	}else{
 		localStorage.removeItem('delivery_catalog_filter');
 	}
-	$("#overlay .calagory").css("background-image","url(images/category_bg2.png)");
-	setTimeout(function(){$("#overlay #"+filterType).css("background-image","url(images/category_hover2.png)");});	
+	$("#overlay .calagory").css("background","url(images/category_bg2.png) center center repeat-y");
+	setTimeout(function(){$("#overlay #"+filterType).css("background","url(images/category_hover2.png)  center center repeat-y");});	
 	getAuditList();	
 }
 

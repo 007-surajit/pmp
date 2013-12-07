@@ -325,10 +325,10 @@ https://codeload.github.com/007-surajit/pmp/zip/master
 
 /*addresscheck*/
 .addresscheck{
-	/*background: #d1f2ff;*/
+	/*background: #f00;*/
 	padding: 12px 0;
 	color: #0090c5;
-	background:  url(../images/bg2.png);
+	background:  url(../images/bg2_bg.png);
 }
 .status_area{
 	padding-bottom: 10px;
@@ -390,7 +390,7 @@ https://codeload.github.com/007-surajit/pmp/zip/master
 .alert_confirmation{
 	margin: 35% auto 0 auto;
 	padding: 15px 0;
-	background: url(../images/bg.png) center center no-repeat;
+	background: url(../images/bg.png);
 	/*border: 1px solid #054b65;*/
 	box-shadow: 0 2px 3px #0d4459;
 }
@@ -418,7 +418,7 @@ https://codeload.github.com/007-surajit/pmp/zip/master
 	width: 40px;
 	height: 18px;
 	right: 0;
-	top: -20px;
+	top: -18px;
 	cursor: pointer;
 	background: url(../images/cross.png) center center no-repeat;
 }

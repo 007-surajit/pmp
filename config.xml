@@ -3,7 +3,7 @@
 <!-- config.xml reference: https://build.phonegap.com/docs/config-xml -->
 <widget xmlns     = "http://www.w3.org/ns/widgets"
         xmlns:gap = "http://phonegap.com/ns/1.0"
-        id        = "com.isis.pmp"
+        id        = "com.mobiliseit.pmp"
         version   = "1.0.0">
 
     <name>PMP</name>
@@ -31,21 +31,21 @@
 		<param name="android-package" value="org.apache.cordova.GeoBroker" />
 		<param name="ios-package" value="CDVLocation" />
 	</feature>
-	<feature name="Device">
+	<!--<feature name="Device">
 		<param name="android-package" value="org.apache.cordova.device.Device" />
 	</feature>
 	<feature name="SplashScreen">
 		<param name="android-package" value="org.apache.cordova.splashscreen.SplashScreen" />
 		<param name="ios-package" value="CDVSplashScreen" />
-	</feature>
+	</feature>-->
 
 	<gap:platform name="ios" />
 	<gap:platform name="android" />
 	
 	<preference name="phonegap-version" value="3.1.0" />
 	<preference name="webviewbounce" value="false" />
-	<preference name="splashScreenDelay" value="60000"/>
-	<preference name="loadUrlTimeoutValue" value="60000"/>	
+	<!--<preference name="splashScreenDelay" value="60000"/>
+	<preference name="loadUrlTimeoutValue" value="60000"/>-->	
 	
 	<!--<preference name="orientation" value="portrait" />-->
 
@@ -88,8 +88,8 @@
 	<gap:plugin name="org.apache.cordova.dialogs" />
 	<gap:plugin name="org.apache.cordova.network-information" />
 	<gap:plugin name="org.apache.cordova.geolocation" />
-	<gap:plugin name="org.apache.cordova.device" />
-	<gap:plugin name="org.apache.cordova.splashscreen" />
+	<!--<gap:plugin name="org.apache.cordova.device" />
+	<gap:plugin name="org.apache.cordova.splashscreen" />-->
 	 
 	
     <access origin="*" />
