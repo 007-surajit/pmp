@@ -202,9 +202,9 @@ function onDeviceReady() {
 	 //
 	// navigator.splashscreen.hide();
 	//alert('onDeviceReady');
-	navigator.geolocation.getCurrentPosition(function(position){alert('Latitude: '+ position.coords.latitude+'Longitude: '+ position.coords.longitude);}, function(error){ alert('code: '    + error.code    + '\n' +
+	/*navigator.geolocation.getCurrentPosition(function(position){alert('Latitude: '+ position.coords.latitude+'Longitude: '+ position.coords.longitude);}, function(error){ alert('code: '    + error.code    + '\n' +
           'message: ' + error.message + '\n');
-});
+});*/
 		var options = { timeout: 30000 };
         watchID = navigator.geolocation.watchPosition(onGeolocationSuccess, onGeolocationError, options);
 
@@ -286,8 +286,8 @@ function onGeolocationError(error) {
 	/*alert('code: '    + error.code    + '\n' +
 		  'message: ' + error.message + '\n');*/
     //navigator.notification.alert('code: ' + error.code    + '\n' + 'message: ' + error.message, null, 'PMP', 'Ok');
-	alert('code: ' + error.code    + '\n' + 'message: ' + error.message, null, 'PMP', 'Ok');
-	localStorage.setItem("location_error",error.message);	
+	//alert('code: ' + error.code    + '\n' + 'message: ' + error.message, null, 'PMP', 'Ok');
+	//localStorage.setItem("location_error",error.message);	
 }
 
 function login()
