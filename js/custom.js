@@ -200,10 +200,15 @@ function markJobAsComplete()
 function onDeviceReady() {
 	 //document.addEventListener("backbutton", delivery_check_back, false);
 	 //
-	 navigator.splashscreen.hide();
+	// navigator.splashscreen.hide();
+	alert('onDeviceReady');
+	navigator.geolocation.getCurrentPosition(function(position){alert('Latitude: '+ position.coords.latitude+'Longitude: '+ position.coords.longitude);}, function(error){ alert('code: '    + error.code    + '\n' +
+          'message: ' + error.message + '\n');
+});
+
 	 watchId = navigator.geolocation.watchPosition(onGeolocationSuccess,onGeolocationError,{  maximumAge: 3000, timeout: 5000, enableHighAccuracy: true });
 	 //navigator.notification.alert("Unique identifier "+device.uuid, null, 'PMP', 'Ok');
-	 localStorage.setItem("unique_identifier",device.uuid);	 
+	 localStorage.setItem("unique_identifier","testid");	 
 }
 
 function checkDeviceStatus() {
