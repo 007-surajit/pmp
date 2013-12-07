@@ -201,7 +201,7 @@ function onDeviceReady() {
 	 //document.addEventListener("backbutton", delivery_check_back, false);
 	 //
 	 navigator.splashscreen.hide();
-	 watchId = navigator.geolocation.watchPosition(onGeolocationSuccess,onGeolocationError,{  maximumAge: 3000, timeout: 5000,, enableHighAccuracy: true });
+	 watchId = navigator.geolocation.watchPosition(onGeolocationSuccess,onGeolocationError,{  maximumAge: 3000, timeout: 5000, enableHighAccuracy: true });
 	 //navigator.notification.alert("Unique identifier "+device.uuid, null, 'PMP', 'Ok');
 	 localStorage.setItem("unique_identifier",device.uuid);	 
 }
