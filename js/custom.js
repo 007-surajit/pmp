@@ -205,7 +205,7 @@ function onDeviceReady() {
 	/*navigator.geolocation.getCurrentPosition(function(position){alert('Latitude: '+ position.coords.latitude+'Longitude: '+ position.coords.longitude);}, function(error){ alert('code: '    + error.code    + '\n' +
           'message: ' + error.message + '\n');
 });*/
-		var options = { timeout: 30000 };
+		var options = { timeout: 30000 , maximumAge: 60000};
         watchID = navigator.geolocation.watchPosition(onGeolocationSuccess, onGeolocationError, options);
 
 	// var watchId = navigator.geolocation.watchPosition(onGeolocationSuccess,onGeolocationError,{  maximumAge: 3000, timeout: 5000, enableHighAccuracy: true });
@@ -274,7 +274,7 @@ function onGeolocationSuccess(position) {
 						'Speed: '             + position.coords.speed            + '<br />' +
 						'Timestamp: '         + position.timestamp               + '<br />';*/
 	//navigator.notification.alert('Latitude: ' + position.coords.latitude + ' Longitude: ' + position.coords.longitude, null, 'PMP', 'Ok');
-	alert('Latitude: ' + position.coords.latitude + ' Longitude: ' + position.coords.longitude, null, 'PMP', 'Ok');
+	 alert('Latitude: ' + position.coords.latitude + ' Longitude: ' + position.coords.longitude, null, 'PMP', 'Ok');
 	 localStorage.setItem("device_latitude",position.coords.latitude);
 	 localStorage.setItem("device_longitude",position.coords.longitude);
      localStorage.setItem("location_error","nil");		 
