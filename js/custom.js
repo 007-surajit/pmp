@@ -1,4 +1,4 @@
-var watchId = "";
+var watchID = null;
 
 function goTo(page)
 {
@@ -201,12 +201,14 @@ function onDeviceReady() {
 	 //document.addEventListener("backbutton", delivery_check_back, false);
 	 //
 	// navigator.splashscreen.hide();
-	alert('onDeviceReady');
+	//alert('onDeviceReady');
 	navigator.geolocation.getCurrentPosition(function(position){alert('Latitude: '+ position.coords.latitude+'Longitude: '+ position.coords.longitude);}, function(error){ alert('code: '    + error.code    + '\n' +
           'message: ' + error.message + '\n');
 });
+		var options = { timeout: 30000 };
+        watchID = navigator.geolocation.watchPosition(onGeolocationSuccess, onGeolocationError, options);
 
-	 watchId = navigator.geolocation.watchPosition(onGeolocationSuccess,onGeolocationError,{  maximumAge: 3000, timeout: 5000, enableHighAccuracy: true });
+	// var watchId = navigator.geolocation.watchPosition(onGeolocationSuccess,onGeolocationError,{  maximumAge: 3000, timeout: 5000, enableHighAccuracy: true });
 	 //navigator.notification.alert("Unique identifier "+device.uuid, null, 'PMP', 'Ok');
 	 localStorage.setItem("unique_identifier","testid");	 
 }
@@ -272,6 +274,7 @@ function onGeolocationSuccess(position) {
 						'Speed: '             + position.coords.speed            + '<br />' +
 						'Timestamp: '         + position.timestamp               + '<br />';*/
 	//navigator.notification.alert('Latitude: ' + position.coords.latitude + ' Longitude: ' + position.coords.longitude, null, 'PMP', 'Ok');
+	alert('Latitude: ' + position.coords.latitude + ' Longitude: ' + position.coords.longitude, null, 'PMP', 'Ok');
 	 localStorage.setItem("device_latitude",position.coords.latitude);
 	 localStorage.setItem("device_longitude",position.coords.longitude);
      localStorage.setItem("location_error","nil");		 
@@ -283,6 +286,7 @@ function onGeolocationError(error) {
 	/*alert('code: '    + error.code    + '\n' +
 		  'message: ' + error.message + '\n');*/
     //navigator.notification.alert('code: ' + error.code    + '\n' + 'message: ' + error.message, null, 'PMP', 'Ok');
+	alert('code: ' + error.code    + '\n' + 'message: ' + error.message, null, 'PMP', 'Ok');
 	localStorage.setItem("location_error",error.message);	
 }
 
