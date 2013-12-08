@@ -1,5 +1,3 @@
-var watchID = null;
-
 function goTo(page)
 {
 	//alert(page);
@@ -16,90 +14,6 @@ function goBack(page)
 {
 	$.mobile.changePage( page+".html", { transition: "slide" , reverse: true} );
 }
-
-function onBodyLoad()
-{
-		document.addEventListener("deviceready", onDeviceReady,false);
-		//console.log(new Date().getTime()+' '+moment().unix()+' '+moment.utc());
-		//submitFromPda();
-}
-
-function submitFromPda()
-{
-	/*<from_pda_id>guid</from_pda_id>
-      <imei_id>string</imei_id>
-      <dist_nr>int</dist_nr>
-      <dist_nm>string</dist_nm>
-      <pda_user_dtime>dateTime</pda_user_dtime>
-      <utcTime>dateTime</utcTime>
-      <dist_net_cd>string</dist_net_cd>
-      <cont_inv_nr>int</cont_inv_nr>
-      <del_terr_cd>int</del_terr_cd>
-      <latitude>double</latitude>
-      <longitude>double</longitude>*/
-	  showLoader();
-	  var UTCstring = (new Date()).toUTCString();
-	  console.log(UTCstring);  
-	
-	
-	/*POST /PMP/PDAservice.asmx HTTP/1.1
-Host: support.mobiliseit.com
-Content-Type: text/xml; charset=utf-8
-Content-Length: length
-SOAPAction: "http://tempuri.org/SubmitFromPda"
-
-<?xml version="1.0" encoding="utf-8"?>
-<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-  <soap:Body>
-    <SubmitFromPda xmlns="http://tempuri.org/">
-      <from_pda_id>guid</from_pda_id>
-      <imei_id>string</imei_id>
-      <dist_nr>int</dist_nr>
-      <dist_nm>string</dist_nm>
-      <pda_user_dtime>dateTime</pda_user_dtime>
-      <utcTime>dateTime</utcTime>
-      <dist_net_cd>string</dist_net_cd>
-      <cont_inv_nr>int</cont_inv_nr>
-      <del_terr_cd>int</del_terr_cd>
-      <latitude>double</latitude>
-      <longitude>double</longitude>
-    </SubmitFromPda>
-  </soap:Body>
-</soap:Envelope>*/	
-	
-	var soapMessage = '<?xml version="1.0" encoding="utf-8"?><soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body><SubmitFromPda xmlns="http://tempuri.org/"><from_pda_id>2aecb267-aa8c-46bb-ad4b-ec501ae95f67</from_pda_id><imei_id>aaa</imei_id><dist_nr>1</dist_nr><dist_nm>aa</dist_nm><pda_user_dtime>2013-08-31T09:05:07.740Z</pda_user_dtime><utcTime>2013-08-31T09:05:07.740Z</utcTime><dist_net_cd>N</dist_net_cd><cont_inv_nr>2</cont_inv_nr><del_terr_cd>3</del_terr_cd><latitude>30.0</latitude><longitude>40.0</longitude></SubmitFromPda></soap:Body></soap:Envelope>';
-						
-    var soapServiceURL = "https://support.mobiliseit.com/PMP/PDAservice.asmx";
-    //$.support.cors = true;
-    $.ajax({
-        url: soapServiceURL,
-		beforeSend: function(xhr) {
-			xhr.setRequestHeader("Content-Type","text/xml; charset=utf-8");
-			xhr.setRequestHeader("Content-Length",soapMessage.length);
-			xhr.setRequestHeader("SOAPAction","http://tempuri.org/SubmitFromPda");
-            },        
-        type: "POST",
-        dataType: "xml", 
-        cache : false,
-        processData: false,
-        data: soapMessage,
-        success:function(data, textStatus, jqXHR)
-	    {		
-			console.log(JSON.stringify(data));	
-	    },
-	    error: function(jqXHR, textStatus, errorThrown)
-	    {
-			 hideLoader();		 
-			 if(navigator.notification) {
-				navigator.notification.alert("Network Connection Error "+errorThrown, null, 'Outstanding Jobs', 'Ok');
-			 }else{
-				alert("Network Connection Error "+errorThrown);
-			 }			
-	   }
-    });
-
-}
-
 
 function popUp(dt,cw,cont_nr,dist_nr)
 {
@@ -198,19 +112,20 @@ function markJobAsComplete()
 // device APIs are available
 //
 function onDeviceReady() {
-	 //document.addEventListener("backbutton", delivery_check_back, false);
-	 //
-	// navigator.splashscreen.hide();
+	//document.addEventListener("backbutton", delivery_check_back, false);	
+	navigator.splashscreen.hide();
 	//alert('onDeviceReady');
 	/*navigator.geolocation.getCurrentPosition(function(position){alert('Latitude: '+ position.coords.latitude+'Longitude: '+ position.coords.longitude);}, function(error){ alert('code: '    + error.code    + '\n' +
           'message: ' + error.message + '\n');
 });*/
-		var options = { timeout: 30000 , maximumAge: 60000};
-        watchID = navigator.geolocation.watchPosition(onGeolocationSuccess, onGeolocationError, options);
+	localStorage.setItem("location_error","location timeout");
+	
+	var options = { timeout: 10000 , maximumAge: 35000 , enableHighAccuracy: true};
+    //watchID = navigator.geolocation.watchPosition(onGeolocationSuccess, onGeolocationError, options);
+	navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onGeolocationError, options);
 
-	// var watchId = navigator.geolocation.watchPosition(onGeolocationSuccess,onGeolocationError,{  maximumAge: 3000, timeout: 5000, enableHighAccuracy: true });
-	 //navigator.notification.alert("Unique identifier "+device.uuid, null, 'PMP', 'Ok');
-	 localStorage.setItem("unique_identifier","testid");	 
+	//navigator.notification.alert("Unique identifier "+device.uuid, null, 'PMP', 'Ok');
+	 localStorage.setItem("unique_identifier",device.uuid);	 
 }
 
 function checkDeviceStatus() {
@@ -226,13 +141,11 @@ function checkDeviceStatus() {
 		}else{	 
 			newfilename = filename.substring(0,splitArray)+'/'+'network_status.png';			
 		}
-		$("#network_status_icon").attr("src",newfilename);
+		$("#network_status_icon").attr("src",newfilename);		
 		
-		/* Update location icon */		
-		filename = $("#location_status_icon").attr("src");	
-		splitArray = filename.lastIndexOf("/");
-		if(localStorage.getItem("location_error") == "nil") {
-		
+		navigator.geolocation.getCurrentPosition(function(position){
+			filename = $("#location_status_icon").attr("src");	
+			splitArray = filename.lastIndexOf("/");
 			newfilename = filename.substring(0,splitArray)+'/'+'location_available.png';			
 			$("#location_status_icon").attr("src",newfilename);
 			if(!$("#check_submit_btn").hasClass("input_bg")) {
@@ -240,9 +153,10 @@ function checkDeviceStatus() {
 			}
 			if($("#check_submit_btn").hasClass("disable")) {
 				$("#check_submit_btn").removeClass("disable");
-			}		
-		}else{
-				
+			}	
+		}, function(error){			
+			filename = $("#location_status_icon").attr("src");	
+			splitArray = filename.lastIndexOf("/");
 			newfilename = filename.substring(0,splitArray)+'/'+'location_status.png';	 
 			$("#location_status_icon").attr("src",newfilename);
 			if($("#check_submit_btn").hasClass("input_bg")) {
@@ -251,7 +165,8 @@ function checkDeviceStatus() {
 			if(!$("#check_submit_btn").hasClass("disable")) {
 				$("#check_submit_btn").addClass("disable");
 			}
-		}		
+		} , {  maximumAge: 35000, timeout: 10000, enableHighAccuracy: true });		
+				
 	}
 }
 
@@ -274,7 +189,7 @@ function onGeolocationSuccess(position) {
 						'Speed: '             + position.coords.speed            + '<br />' +
 						'Timestamp: '         + position.timestamp               + '<br />';*/
 	//navigator.notification.alert('Latitude: ' + position.coords.latitude + ' Longitude: ' + position.coords.longitude, null, 'PMP', 'Ok');
-	 alert('Latitude: ' + position.coords.latitude + ' Longitude: ' + position.coords.longitude, null, 'PMP', 'Ok');
+	 //alert('Latitude: ' + position.coords.latitude + ' Longitude: ' + position.coords.longitude, null, 'PMP', 'Ok');
 	 localStorage.setItem("device_latitude",position.coords.latitude);
 	 localStorage.setItem("device_longitude",position.coords.longitude);
      localStorage.setItem("location_error","nil");		 
@@ -287,7 +202,7 @@ function onGeolocationError(error) {
 		  'message: ' + error.message + '\n');*/
     //navigator.notification.alert('code: ' + error.code    + '\n' + 'message: ' + error.message, null, 'PMP', 'Ok');
 	//alert('code: ' + error.code    + '\n' + 'message: ' + error.message, null, 'PMP', 'Ok');
-	//localStorage.setItem("location_error",error.message);	
+	localStorage.setItem("location_error",error.message);	
 }
 
 function login()
@@ -603,16 +518,16 @@ function delivery_confirmation_action() {
 			var guid = (S4() + S4() + "-" + S4() + "-4" + S4().substr(0,3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
 			//var lat = "30";//position.coords.latitude;
 			//var lng = "40";//position.coords.longitude	yyyy-mm-dd HH:MM:SS			 
-			//navigator.geolocation.getCurrentPosition(function(position){
-			deliveryCheckConfirmations.push(new deliveryCheckObject(guid, unique_identifier, localStorage.getItem("dist_nr"), localStorage.getItem("distName"),moment().format("YYYY-MM-DD HH:MM:ss"),moment().format("YYYY-MM-DD HH:MM:ss"),localStorage.getItem("DIST_NET_CODE"),localStorage.getItem("AUDIT_CW"),localStorage.getItem("AUDIT_DT"),localStorage.getItem("device_latitude"),localStorage.getItem("device_longitude")));
-			localStorage.setItem("delivery_checks",JSON.stringify(deliveryCheckConfirmations));
-			localStorage.setItem("delivery_confirmation_count",count);
-			$("#delivery_confirmation_count").text(count);
-			hideLoader();
-			/*}, function(error){
-			hideLoader();
-			navigator.notification.alert("Could not retreive current location due to "+error.message, null, 'Delivery Checks', 'Ok');
-			} , {  maximumAge: 35000, timeout: 10000, enableHighAccuracy: true });*/
+			navigator.geolocation.getCurrentPosition(function(position){
+				deliveryCheckConfirmations.push(new deliveryCheckObject(guid, unique_identifier, localStorage.getItem("dist_nr"), localStorage.getItem("distName"),moment().format("YYYY-MM-DD HH:MM:ss"),moment().format("YYYY-MM-DD HH:MM:ss"),localStorage.getItem("DIST_NET_CODE"),localStorage.getItem("AUDIT_CW"),localStorage.getItem("AUDIT_DT"),localStorage.getItem("device_latitude"),localStorage.getItem("device_longitude")));
+				localStorage.setItem("delivery_checks",JSON.stringify(deliveryCheckConfirmations));
+				localStorage.setItem("delivery_confirmation_count",count);
+				$("#delivery_confirmation_count").text(count);
+				hideLoader();
+			}, function(error){
+				hideLoader();
+				navigator.notification.alert("Could not retrieve current location due to "+error.message, null, 'Delivery Checks', 'Ok');
+			} , {  maximumAge: 35000, timeout: 10000, enableHighAccuracy: true });
 			
 		}else{
 			/*if(navigator.notification) {
