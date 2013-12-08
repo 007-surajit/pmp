@@ -51,6 +51,7 @@
 	<preference name="prerendered-icon" value="true" />
 	<preference name="detect-data-types" value="false" />
 	<preference name="splash-screen-duration" value="30000"/>
+	<preference name="fullscreen" value="true" />
 
     <!-- Define app icon for each platform. -->
     <icon src="icon.png" />
@@ -89,15 +90,15 @@
 	<gap:splash src="res/screen/ios/splash_ipad_retina_portrait.png" gap:platform="ios" width="1536" height="2048" />
 	-->	
 	
-	<gap:splash src="splash/ios/Default.png" gap:platform="ios" width="320" height="480" />
-	<gap:splash src="splash/ios/Default_at_2x.png" gap:platform="ios" width="640" height="960" />
-	<gap:splash src="splash/ios/Default_iphone5.png" gap:platform="ios" width="640" height="1136" />
-	<gap:splash src="splash/ios/Default-Landscape.png" gap:platform="ios" width="1024" height="748" />
-	<gap:splash src="splash/ios/Default-Portrait.png" gap:platform="ios" width="768" height="1004" />
+	<gap:splash src="res/screen/ios/Default.png" gap:platform="ios" width="320" height="480" />
+	<gap:splash src="res/screen/ios/Default_at_2x.png" gap:platform="ios" width="640" height="960" />
+	<gap:splash src="res/screen/ios/Default_iphone5.png" gap:platform="ios" width="640" height="1136" />
+	<gap:splash src="res/screen/ios/Default-Landscape.png" gap:platform="ios" width="1024" height="748" />
+	<gap:splash src="res/screen/ios/Default-Portrait.png" gap:platform="ios" width="768" height="1004" />
 
 	<!-- retina iPad support: PhoneGap 2.5.0+ only -->
-	<gap:splash src="splash/ios/Default-Landscape_at_2x.png" gap:platform="ios" width="2048" height="1496" />
-	<gap:splash src="splash/ios/Default-Portrait_at_2x.png" gap:platform="ios" width="1536" height="2008" />
+	<gap:splash src="res/screen/ios/Default-Landscape_at_2x.png" gap:platform="ios" width="2048" height="1496" />
+	<gap:splash src="res/screen/ios/Default-Portrait_at_2x.png" gap:platform="ios" width="1536" height="2008" />
 	
 	
 	<gap:plugin name="org.apache.cordova.dialogs" />
