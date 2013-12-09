@@ -90,6 +90,7 @@ function markJobAsComplete()
     $.ajax({
 	  url: "https://support.mobiliseit.com/PMP/PDAservice.asmx/markCompleted",
 	  type: "POST",
+	  timeout: 60000 ,
 	  data: {cont_nr: localStorage.getItem("JOB_CONT_NR"), cont_inv_nr: localStorage.getItem("JOB_CONT_INV_NR"), del_terr_cd: localStorage.getItem("JOB_DEL_TERR_CD"), dist_nr: localStorage.getItem("JOB_DIST_NR"), utcTime: (new Date()).toUTCString()},
 	  success:function(data, textStatus, jqXHR)
 	  {		
@@ -129,10 +130,10 @@ function onDeviceReady() {
 }
 
 function checkDeviceStatus() {
-	if(navigator.connection) {    
-		
-		/* Update network icon 	*/		
-		var networkState = navigator.connection.type;    
+	
+	if(navigator.connection) {		
+		// Update network icon 			
+		var networkState = navigator.connection.type;		
 		var filename = $("#network_status_icon").attr("src");	
 		var splitArray = filename.lastIndexOf("/");
 		var newfilename = "";	 
@@ -165,14 +166,13 @@ function checkDeviceStatus() {
 			if(!$("#check_submit_btn").hasClass("disable")) {
 				$("#check_submit_btn").addClass("disable");
 			}
-		} , {  maximumAge: 35000, timeout: 10000, enableHighAccuracy: true });		
-				
+		} , {  maximumAge: 35000, timeout: 10000, enableHighAccuracy: true });				
 	}
 }
 
 function deliveryCheckRefresh() {
 	showLoader();
-	setTimeout(function(){hideLoader();},2000);
+	setTimeout(function(){hideLoader();},3000);
 	checkDeviceStatus();
 
 }
@@ -226,6 +226,7 @@ function login()
 	  $.ajax({
 		  url: "https://support.mobiliseit.com/PMP/PDAservice.asmx/Authenticate",
 		  type: "POST",
+		  timeout: 60000 ,
 		  data: {userID: $('input[name="username"]').val(), password: $('input[name="password"]').val()},
 		  dataType: 'json',
 		  success:function(data, textStatus, jqXHR)
@@ -334,6 +335,7 @@ function getAuditList()
 	$.ajax({
 	  url: "https://support.mobiliseit.com/PMP/PDAservice.asmx/GetFromIvrByManager",
 	  type: "POST",
+	  timeout: 60000 ,
 	  data: {dist_nr: localStorage.getItem("dist_nr")},
 	  dataType: 'json',
 	  success:function(data, textStatus, jqXHR)
@@ -567,6 +569,7 @@ function submitDeliveryConfirmation()
 		$.ajax({
 		  url: "https://support.mobiliseit.com/PMP/PDAservice.asmx/SubmitDeliveryConfirmation",
 		  type: "POST",
+		  timeout: 60000 ,
 		  data: deliveryCheckConfirmations.shift(),
 		  success:function(data, textStatus, jqXHR)
 		  {		
@@ -645,6 +648,7 @@ function getOutstandingJobs()
 	$.ajax({
 	  url: "https://support.mobiliseit.com/PMP/PDAservice.asmx/GetToIvrByManager",
 	  type: "POST",
+	  timeout: 60000 ,
 	  data: {dist_nr: localStorage.getItem("dist_nr")},
 	  dataType: 'json',
 	  success:function(data, textStatus, jqXHR)
@@ -778,6 +782,7 @@ function getQueryList()
 	$.ajax({
 	  url: "https://support.mobiliseit.com/PMP/PDAservice.asmx/GetQueryToPdaByManager",
 	  type: "POST",
+	  timeout: 60000 ,
 	  data: {dist_nr: localStorage.getItem("dist_nr")},
 	  dataType: 'json',
 	  success:function(data, textStatus, jqXHR)
@@ -804,9 +809,11 @@ function getQueryList()
 					tempHTML = tempHTML.replace(/{{DIST_NR}}/gi, query.query_area_details);
 					tempHTML = tempHTML.replace(/{{QUERY_DETAIL}}/gi, query.query_detail);
 					tempHTML = tempHTML.replace(/{{QUERY_JOB_NR}}/gi, query.query_job_nr);
-					tempHTML = tempHTML.replace(/{{QUERY_JOB_NR}}/gi, query.query_job_nr);
+					tempHTML = tempHTML.replace(/{{QUERY_JOB_DESC}}/gi, query.query_job_desc);
 					tempHTML = tempHTML.replace(/{{DATE_WINDOW}}/gi,  moment(query.query_job_dtime).format("DD MMM YYYY"));			
                     
+					
+					
 					var area_details = query.query_area_details;
 					
 					var parts = area_details.split("/");
@@ -852,6 +859,124 @@ function getQueryList()
 	});
 }
 
+var queryConfirmations = [];
+
+/*
+<queryFromPdaId>string</queryFromPdaId>
+      <queryNr>int</queryNr>
+      <deviceDateTime>string</deviceDateTime>
+      <utcTime>string</utcTime>
+      <reasonTypeDesc>string</reasonTypeDesc>
+      <distComments>string</distComments>
+      <strNr>string</strNr>
+      <strNm>string</strNm>
+      <strTypeCd>string</strTypeCd>
+      <subNm>string</subNm>
+      <pcCd>string</pcCd>
+      <latitude>double</latitude>
+      <longitude>double</longitude>
+*/
+
+function queryConfirmationObject(guid, device_time,utc_time,reason_desc,dist_comments,str_nr,str_nm,str_type_cd,sub_nm,pc_cd,lat,lng) {
+  this.queryFromPdaId = guid;
+  this.deviceTime = device_time;
+  this.utcTime = utc_time;
+  this.reasonTypeDesc = reason_desc;
+  this.distComments = dist_comments;
+  this.strNr = str_nr;
+  this.strNm = str_nm;
+  this.strTypeCd = str_type_cd;
+  this.subNm = sub_nm;
+  this.pcCd = pc_cd;
+  this.latitude = lat;
+  this.longitude = lng;
+}
+
+function query_confirmation_action() {
+    var filename = $("#location_status_icon").attr("src");	
+	var splitArray = filename.split("/");
+	var image = splitArray[splitArray.length-1];
+	if(image == 'location_available.png') {
+	    var count = parseInt(localStorage.getItem("delivery_confirmation_count"));
+		if(count < 6) {
+			showLoader();
+			count++;
+			var unique_identifier  = localStorage.getItem("unique_identifier");  // "9774d56d682e549c";
+			var guid = (S4() + S4() + "-" + S4() + "-4" + S4().substr(0,3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
+			//var lat = "30";//position.coords.latitude;
+			//var lng = "40";//position.coords.longitude	yyyy-mm-dd HH:MM:SS			 
+			navigator.geolocation.getCurrentPosition(function(position){
+				deliveryCheckConfirmations.push(new queryConfirmationObject(guid, unique_identifier, localStorage.getItem("dist_nr"), localStorage.getItem("distName"),moment().format("YYYY-MM-DD HH:MM:ss"),moment().format("YYYY-MM-DD HH:MM:ss"),localStorage.getItem("DIST_NET_CODE"),localStorage.getItem("AUDIT_CW"),localStorage.getItem("AUDIT_DT"),localStorage.getItem("device_latitude"),localStorage.getItem("device_longitude")));
+				localStorage.setItem("delivery_checks",JSON.stringify(deliveryCheckConfirmations));
+				localStorage.setItem("delivery_confirmation_count",count);
+				$("#delivery_confirmation_count").text(count);
+				hideLoader();
+			}, function(error){
+				hideLoader();
+				navigator.notification.alert("Could not retrieve current location due to "+error.message, null, 'Delivery Checks', 'Ok');
+			} , {  maximumAge: 35000, timeout: 10000, enableHighAccuracy: true });
+			
+		}else{
+			/*if(navigator.notification) {
+				navigator.notification.alert("You can confirm maximum 6 times", null, 'Delivery Checks', 'Ok');
+			}else{
+				alert("You can confirm maximum 6 times");						
+			}*/
+			if($("#check_submit_btn").hasClass("input_bg")) {
+				$("#check_submit_btn").removeClass("input_bg");
+			}
+			if(!$("#check_submit_btn").hasClass("disable")) {
+				$("#check_submit_btn").addClass("disable");
+			}
+		}		
+	}else{
+		/*if(navigator.notification) {
+				navigator.notification.alert("Location not available.Please try again", null, 'Delivery Checks', 'Ok');
+		}else{
+				alert("Location not available.Please try again");						
+		}*/
+	}
+}
+
+function submitQueryInformation()
+{
+	showLoader();
+	if(deliveryCheckConfirmations.length > 0) {		
+		$.ajax({
+		  url: "https://support.mobiliseit.com/PMP/PDAservice.asmx/SubmitQuery ",
+		  type: "POST",
+		  timeout: 60000 ,
+		  data: deliveryCheckConfirmations.shift(),
+		  success:function(data, textStatus, jqXHR)
+		  {		
+			//success callback			
+			//alert('Delivery Checks success'+data.Count);
+			if(deliveryCheckConfirmations.length == 0) {
+				hideLoader();
+				goBack('delivery_audit');
+			}else{
+				setTimeout(submitDeliveryConfirmation(),0);
+			}
+		  },
+		  error: function(jqXHR, textStatus, errorThrown)
+		  {
+			 hideLoader();
+			 storeDeliveryConfirmation();			
+		   }	  
+		});	
+	}else{
+		hideLoader();
+		goBack('delivery_audit');
+	}
+}
+
+function storeQueryData(job_desc,query_desc)
+{
+	localStorage.setItem('job_desc',job_desc);
+	localStorage.setItem('query_desc',query_desc);
+	setTimeout(function(){goTo('querydetail')});
+}
+
 $(document).on("pageshow", "#delivery_audit", function( event ) {
 	getAuditList();
 });
@@ -894,6 +1019,23 @@ $(document).on("pageshow", "#settings", function( event ) {
 	setTimeout(function(){loadPreferences()});	
 });
 
+$(document).on("pageshow", "#querydetails", function( event ) {
+	$("#job_desc_text").val(localStorage.getItem('job_desc'));
+	$("#query_desc_textarea").val(localStorage.getItem('query_desc'));	
+	checkDeviceStatus();
+});
+
+$(document).on("pageshow", "#addresscheck", function( event ) {
+	checkDeviceStatus();
+});
+
+$(document).on("pageshow", "#addition_address", function( event ) {
+	checkDeviceStatus();
+});
+
+$(document).on("pageshow", "#query_comments", function( event ) {
+	checkDeviceStatus();
+});
 
 function loadPreferences() {
 

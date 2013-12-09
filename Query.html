@@ -34,7 +34,7 @@
    </div>
 </div>
 <!--content area-->
-<div class="container contentarea2 query" onClick="goTo('querydetail')" id="query_content">
+<div class="container contentarea2 query" id="query_content">
    <!--<div class="row-fluid">	
 	   <div class="span10 offset1 query_area">
 	   		<div class="row-fluid">
@@ -57,10 +57,8 @@
    </div>-->           
 </div>
 
-
-
 <div id="query_template" style="display:none">
-    <div class="row-fluid"> 
+    <div class="row-fluid"  onClick="storeQueryData('{{QUERY_JOB_DESC}}','{{QUERY_DETAIL}}')"> 
     <div class="span10 offset1 query_area">
       <div class="row-fluid">
     <div class="span8">
