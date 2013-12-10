@@ -1,3 +1,4 @@
+var queryList = new Array();
 function goTo(page)
 {
 	//alert(page);
@@ -516,12 +517,12 @@ function delivery_confirmation_action() {
 		if(count < 6) {
 			showLoader();
 			count++;
-			var unique_identifier  = localStorage.getItem("unique_identifier");  // "9774d56d682e549c";
-			var guid = (S4() + S4() + "-" + S4() + "-4" + S4().substr(0,3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
+			var unique_identifier  = localStorage.getItem("unique_identifier");  // "9774d56d682e549c";			
 			//var lat = "30";//position.coords.latitude;
 			//var lng = "40";//position.coords.longitude	yyyy-mm-dd HH:MM:SS			 
 			navigator.geolocation.getCurrentPosition(function(position){
-				deliveryCheckConfirmations.push(new deliveryCheckObject(guid, unique_identifier, localStorage.getItem("dist_nr"), localStorage.getItem("distName"),moment().format("YYYY-MM-DD HH:MM:ss"),moment().format("YYYY-MM-DD HH:MM:ss"),localStorage.getItem("DIST_NET_CODE"),localStorage.getItem("AUDIT_CW"),localStorage.getItem("AUDIT_DT"),localStorage.getItem("device_latitude"),localStorage.getItem("device_longitude")));
+				var guid = (S4() + S4() + "-" + S4() + "-4" + S4().substr(0,3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
+				deliveryCheckConfirmations.push(new deliveryCheckObject(guid, unique_identifier, localStorage.getItem("dist_nr"), localStorage.getItem("distName"),moment().format("YYYY-MM-DD HH:MM:ss"),moment().format("YYYY-MM-DD HH:MM:ss"),localStorage.getItem("DIST_NET_CODE"),localStorage.getItem("AUDIT_CW"),localStorage.getItem("AUDIT_DT"),position.coords.latitude,position.coords.longitude));
 				localStorage.setItem("delivery_checks",JSON.stringify(deliveryCheckConfirmations));
 				localStorage.setItem("delivery_confirmation_count",count);
 				$("#delivery_confirmation_count").text(count);
@@ -579,7 +580,7 @@ function submitDeliveryConfirmation()
 				hideLoader();
 				goBack('delivery_audit');
 			}else{
-				setTimeout(submitDeliveryConfirmation(),0);
+				setTimeout('submitDeliveryConfirmation()',0);
 			}
 		  },
 		  error: function(jqXHR, textStatus, errorThrown)
@@ -779,6 +780,8 @@ function getQueryList()
 	
 	var selectAreaList = new Array();
 	
+	queryList = [];
+	
 	$.ajax({
 	  url: "https://support.mobiliseit.com/PMP/PDAservice.asmx/GetQueryToPdaByManager",
 	  type: "POST",
@@ -788,16 +791,13 @@ function getQueryList()
 	  success:function(data, textStatus, jqXHR)
       {
 			//console.log(data.hasOwnProperty("dist_nrr"));from_ivr	
-
-			/*data = {"queries_to_pda":[{"query_nr":728335,"dist_nr":3050234,"dist_net_cd":"N","query_job_nr":721795,"query_job_desc":"Job 721795 HOBSONS BAY LEADER [08 Oct 2013 to 09 Oct 2013] for 10 Oct 2013","query_job_dtime":"\/Date(1381064400000)\/","query_reported_dtime":"\/Date(1381804613240)\/","query_area_details":"159/24","query_type_desc":"Non delivery","query_detail":"no delivery for 3 years -|- Please investigate and respond within 72 hours. Thanks.","str_nr":"11/76","str_nm":"POINT COOK","str_type_cd":"RD","sub_nm":"SEABROOK","pc_cd":"3028","batch":141007},{"query_nr":728335,"dist_nr":3050234,"dist_net_cd":"N","query_job_nr":721795,"query_job_desc":"Job 721795 HOBSONS BAY LEADER [08 Oct 2013 to 09 Oct 2013] for 10 Oct 2013","query_job_dtime":"\/Date(1381064400000)\/","query_reported_dtime":"\/Date(1381804613240)\/","query_area_details":"159/24","query_type_desc":"Non delivery","query_detail":"no delivery for 3 years -|- Please investigate and respond within 72 hours. Thanks.","str_nr":"11/76","str_nm":"POINT COOK","str_type_cd":"RD","sub_nm":"SEABROOK","pc_cd":"3028","batch":141007},{"query_nr":728335,"dist_nr":3050234,"dist_net_cd":"N","query_job_nr":721795,"query_job_desc":"Job 721795 HOBSONS BAY LEADER [08 Oct 2013 to 09 Oct 2013] for 10 Oct 2013","query_job_dtime":"\/Date(1381064400000)\/","query_reported_dtime":"\/Date(1381804613240)\/","query_area_details":"159/24","query_type_desc":"Non delivery","query_detail":"no delivery for 3 years -|- Please investigate and respond within 72 hours. Thanks.","str_nr":"11/76","str_nm":"POINT COOK","str_type_cd":"RD","sub_nm":"SEABROOK","pc_cd":"3028","batch":141007},{"query_nr":728335,"dist_nr":3050234,"dist_net_cd":"N","query_job_nr":721795,"query_job_desc":"Job 721795 HOBSONS BAY LEADER [08 Oct 2013 to 09 Oct 2013] for 10 Oct 2013","query_job_dtime":"\/Date(1381064400000)\/","query_reported_dtime":"\/Date(1381804613240)\/","query_area_details":"159/24","query_type_desc":"Non delivery","query_detail":"no delivery for 3 years -|- Please investigate and respond within 72 hours. Thanks.","str_nr":"11/76","str_nm":"POINT COOK","str_type_cd":"RD","sub_nm":"SEABROOK","pc_cd":"3028","batch":141007}]};*/
-			
+	
+			/*data = {"queries_to_pda":[{"query_nr":728335,"dist_nr":3050234,"dist_net_cd":"N","query_job_nr":721795,"query_job_desc":"Job 721795 HOBSONS BAY LEADER [08 Oct 2013 to 09 Oct 2013] for 10 Oct 2013","query_job_dtime":"\/Date(1381064400000)\/","query_reported_dtime":"\/Date(1381804613240)\/","query_area_details":"159/24","query_type_desc":"Non delivery","query_detail":"no delivery for 3 years -|- Please investigate and respond within 72 hours. Thanks.","str_nr":"11/76","str_nm":"POINT COOK","str_type_cd":"RD","sub_nm":"SEABROOK","pc_cd":"3028","batch":141007},{"query_nr":728335,"dist_nr":3050234,"dist_net_cd":"N","query_job_nr":721795,"query_job_desc":"Job 721795 HOBSONS BAY LEADER [08 Oct 2013 to 09 Oct 2013] for 10 Oct 2013","query_job_dtime":"\/Date(1381064400000)\/","query_reported_dtime":"\/Date(1381804613240)\/","query_area_details":"159/24","query_type_desc":"Non delivery","query_detail":"no delivery for 3 years -|- Please investigate and respond within 72 hours. Thanks.","str_nr":"11/76","str_nm":"POINT COOK","str_type_cd":"RD","sub_nm":"SEABROOK","pc_cd":"3028","batch":141007},{"query_nr":728335,"dist_nr":3050234,"dist_net_cd":"N","query_job_nr":721795,"query_job_desc":"Job 721795 HOBSONS BAY LEADER [08 Oct 2013 to 09 Oct 2013] for 10 Oct 2013","query_job_dtime":"\/Date(1381064400000)\/","query_reported_dtime":"\/Date(1381804613240)\/","query_area_details":"159/24","query_type_desc":"Non delivery","query_detail":"no delivery for 3 years -|- Please investigate and respond within 72 hours. Thanks.","str_nr":"11/76","str_nm":"POINT COOK","str_type_cd":"RD","sub_nm":"SEABROOK","pc_cd":"3028","batch":141007},{"query_nr":728335,"dist_nr":3050234,"dist_net_cd":"N","query_job_nr":721795,"query_job_desc":"Job 721795 HOBSONS BAY LEADER [08 Oct 2013 to 09 Oct 2013] for 10 Oct 2013","query_job_dtime":"\/Date(1381064400000)\/","query_reported_dtime":"\/Date(1381804613240)\/","query_area_details":"159/24","query_type_desc":"Non delivery","query_detail":"no delivery for 3 years -|- Please investigate and respond within 72 hours. Thanks.","str_nr":"11/76","str_nm":"POINT COOK","str_type_cd":"RD","sub_nm":"SEABROOK","pc_cd":"3028","batch":141007}]};*/			
 			
 			if(data.queries_to_pda && data.queries_to_pda.length)
-			{
-				
-				
+			{				
+				queryList = data;				
 				var query_template = $("#query_template").html();
-
 				//console.log(audit_template_html);
 				var html = "";
 				var tempHTML = "";
@@ -810,9 +810,8 @@ function getQueryList()
 					tempHTML = tempHTML.replace(/{{QUERY_DETAIL}}/gi, query.query_detail);
 					tempHTML = tempHTML.replace(/{{QUERY_JOB_NR}}/gi, query.query_job_nr);
 					tempHTML = tempHTML.replace(/{{QUERY_JOB_DESC}}/gi, query.query_job_desc);
-					tempHTML = tempHTML.replace(/{{DATE_WINDOW}}/gi,  moment(query.query_job_dtime).format("DD MMM YYYY"));			
-                    
-					
+					tempHTML = tempHTML.replace(/{{DATE_WINDOW}}/gi,  moment(query.query_job_dtime).format("DD MMM YYYY"));
+					tempHTML = tempHTML.replace(/{{ROW_INDEX}}/gi, queryCount);
 					
 					var area_details = query.query_area_details;
 					
@@ -822,13 +821,12 @@ function getQueryList()
 						if(selectAreaList.indexOf(parts[0]) == -1) {
 							selectAreaList.push(parts[0]);
 						}
-						localStorage.setItem("querySelectAreaList",JSON.stringify(selectAreaList));
-						html += tempHTML;
+						localStorage.setItem("querySelectAreaList",JSON.stringify(selectAreaList));			
+						html += tempHTML;						
 						queryCount++;
 					}else if(parts[0] == localStorage.getItem("query_filter")) {
 						html += tempHTML;
-						queryCount++;
-											
+						queryCount++;											
 					}					
 					//tempHTML = tempHTML.replace(/{{DEL_TERR_CD}}/gi, query.del_terr_cd);					
 				});
@@ -877,9 +875,10 @@ var queryConfirmations = [];
       <longitude>double</longitude>
 */
 
-function queryConfirmationObject(guid, device_time,utc_time,reason_desc,dist_comments,str_nr,str_nm,str_type_cd,sub_nm,pc_cd,lat,lng) {
+function queryConfirmationObject(guid, query_nr,device_time,utc_time,reason_desc,dist_comments,str_nr,str_nm,str_type_cd,sub_nm,pc_cd,lat,lng) {
   this.queryFromPdaId = guid;
-  this.deviceTime = device_time;
+  this.queryNr = query_nr;
+  this.deviceDateTime = device_time;
   this.utcTime = utc_time;
   this.reasonTypeDesc = reason_desc;
   this.distComments = dist_comments;
@@ -897,19 +896,19 @@ function query_confirmation_action() {
 	var splitArray = filename.split("/");
 	var image = splitArray[splitArray.length-1];
 	if(image == 'location_available.png') {
-	    var count = parseInt(localStorage.getItem("delivery_confirmation_count"));
-		if(count < 6) {
+	    var count = parseInt(localStorage.getItem("query_confirmation_count"));
+		if(count < 9) {
 			showLoader();
-			count++;
-			var unique_identifier  = localStorage.getItem("unique_identifier");  // "9774d56d682e549c";
-			var guid = (S4() + S4() + "-" + S4() + "-4" + S4().substr(0,3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
+			count++;			
 			//var lat = "30";//position.coords.latitude;
 			//var lng = "40";//position.coords.longitude	yyyy-mm-dd HH:MM:SS			 
 			navigator.geolocation.getCurrentPosition(function(position){
-				deliveryCheckConfirmations.push(new queryConfirmationObject(guid, unique_identifier, localStorage.getItem("dist_nr"), localStorage.getItem("distName"),moment().format("YYYY-MM-DD HH:MM:ss"),moment().format("YYYY-MM-DD HH:MM:ss"),localStorage.getItem("DIST_NET_CODE"),localStorage.getItem("AUDIT_CW"),localStorage.getItem("AUDIT_DT"),localStorage.getItem("device_latitude"),localStorage.getItem("device_longitude")));
-				localStorage.setItem("delivery_checks",JSON.stringify(deliveryCheckConfirmations));
-				localStorage.setItem("delivery_confirmation_count",count);
-				$("#delivery_confirmation_count").text(count);
+				var guid = (S4() + S4() + "-" + S4() + "-4" + S4().substr(0,3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
+				var queryObj = JSON.parse(localStorage.getItem("query_item"));
+				queryConfirmations.push(new queryConfirmationObject(guid, queryObj.query_nr,moment().format("YYYY-MM-DD HH:MM:ss"),moment().format("YYYY-MM-DD HH:MM:ss"),$("#reason_desc_editable").val(),"",$("#str_nr").val(),$("#str_nm").val(),queryObj.str_type_cd,$("#sub_nm").val(),queryObj.pc_cd,position.coords.latitude,position.coords.longitude));
+				localStorage.setItem("address_checks",JSON.stringify(queryConfirmations));
+				localStorage.setItem("query_confirmation_count",count);
+				$("#query_confirmation_count").text(count);
 				hideLoader();
 			}, function(error){
 				hideLoader();
@@ -941,40 +940,74 @@ function query_confirmation_action() {
 function submitQueryInformation()
 {
 	showLoader();
-	if(deliveryCheckConfirmations.length > 0) {		
+	console.log(JSON.stringify(queryConfirmations));
+	if(queryConfirmations.length > 0) {		
 		$.ajax({
-		  url: "https://support.mobiliseit.com/PMP/PDAservice.asmx/SubmitQuery ",
+		  url: "https://support.mobiliseit.com/PMP/PDAservice.asmx/SubmitQuery",
 		  type: "POST",
 		  timeout: 60000 ,
-		  data: deliveryCheckConfirmations.shift(),
+		  data: queryConfirmations.shift(),
 		  success:function(data, textStatus, jqXHR)
 		  {		
 			//success callback			
 			//alert('Delivery Checks success'+data.Count);
-			if(deliveryCheckConfirmations.length == 0) {
+			if(queryConfirmations.length == 0) {
 				hideLoader();
-				goBack('delivery_audit');
+				//goBack('delivery_audit');
+				goTo('Query');
 			}else{
-				setTimeout(submitDeliveryConfirmation(),0);
+				setTimeout('submitQueryInformation()',0);
 			}
 		  },
 		  error: function(jqXHR, textStatus, errorThrown)
 		  {
 			 hideLoader();
-			 storeDeliveryConfirmation();			
+			 //storeDeliveryConfirmation();			
 		   }	  
 		});	
 	}else{
 		hideLoader();
-		goBack('delivery_audit');
+		goTo('Query');
 	}
 }
 
-function storeQueryData(job_desc,query_desc)
+function storeQueryData(index)
 {
-	localStorage.setItem('job_desc',job_desc);
-	localStorage.setItem('query_desc',query_desc);
+	localStorage.setItem("query_item",JSON.stringify(queryList.queries_to_pda[index]));
 	setTimeout(function(){goTo('querydetail')});
+}
+
+function populateReasons()
+{
+	showLoader();
+	$.ajax({
+		  url: "https://support.mobiliseit.com/PMP/PDAservice.asmx/GetReasons ",
+		  timeout: 60000 ,
+		  dataType: "json",
+		  success:function(data, textStatus, jqXHR)
+		  {			
+			//alert(data.reason_type.length);
+			if(data.reason_type && data.reason_type.length)
+			{				
+				var options = ""
+				$.each(data.reason_type, function(i,reason){
+					options+="<option value='"+reason.reason_type_desc+"'>"+reason.reason_type_desc+"</option>";
+				});
+				//console.log(options);
+				$("#reason_desc_editable").append(options);
+			}
+			hideLoader();
+		  },
+		  error: function(jqXHR, textStatus, errorThrown)
+		  {
+			 hideLoader();
+			 if(navigator.notification) {
+				navigator.notification.alert("Network Connection Error "+errorThrown, null, 'Addition Address Checks', 'Ok');
+			  }else{
+					alert("Network Connection Error "+errorThrown);
+			  }			
+		   }	  
+	});
 }
 
 $(document).on("pageshow", "#delivery_audit", function( event ) {
@@ -1020,16 +1053,27 @@ $(document).on("pageshow", "#settings", function( event ) {
 });
 
 $(document).on("pageshow", "#querydetails", function( event ) {
-	$("#job_desc_text").val(localStorage.getItem('job_desc'));
-	$("#query_desc_textarea").val(localStorage.getItem('query_desc'));	
+    var queryObj = JSON.parse(localStorage.getItem("query_item"));
+	$("#job_desc_text").val(queryObj.query_job_desc);
+	$("#query_desc_textarea").val(queryObj.query_detail);	
 	checkDeviceStatus();
 });
 
 $(document).on("pageshow", "#addresscheck", function( event ) {
+	var queryObj = JSON.parse(localStorage.getItem("query_item"));
+	$("#str_nm_text").val(queryObj.str_nm);
+	$("#sub_nm_text").val(queryObj.sub_nm);
+	$("#reason_desc_readonly").html("<option value='"+queryObj.query_type_desc+"' selected='selected'>"+queryObj.query_type_desc+"</option>");
 	checkDeviceStatus();
 });
 
 $(document).on("pageshow", "#addition_address", function( event ) {
+	localStorage.setItem("query_confirmation_count","0");
+	populateReasons();
+	checkDeviceStatus();
+});
+
+$(document).on("pageshow", "#query_comments", function( event ) {
 	checkDeviceStatus();
 });
 

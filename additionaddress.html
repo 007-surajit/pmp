@@ -62,38 +62,39 @@
     <div class="row-fluid">	
 	   <div class="span10 offset1 input_bg">
 	   		<div class="row-fluid">
-	  			<div class="span12"><input name="" class="span12" value="Street No" type="text" data-role="none"></div>
+	  			<div class="span12"><input name="" class="span12" value="Street No" type="text" data-role="none" id="str_nr"></div>
 			</div>
 	   </div>	   
    </div>
    <div class="row-fluid">	
 	   <div class="span10 offset1 input_bg">
 	   		<div class="row-fluid">
-	  			<div class="span12"><input name="" class="span12" value="1 Belvoir Cres" type="text" data-role="none"></div>
+	  			<div class="span12"><input name="" class="span12" value="1 Belvoir Cres" type="text" data-role="none" id="str_nm"></div>
 			</div>
 	   </div>	   
    </div>
    <div class="row-fluid">	
 	   <div class="span10 offset1 input_bg">
 	   		<div class="row-fluid">
-	  			<div class="span12"><input name="" class="span12" value="Orelia" type="text" data-role="none"></div>
+	  			<div class="span12"><input name="" class="span12" value="Orelia" type="text" data-role="none" id="sub_nm"></div>
 			</div>
 	   </div>	   
    </div>
    <div class="row-fluid">	
 	   <div class="span10 offset1 input_bg">
 	   		<div class="row-fluid">
-	  			<div class="span12"><input name="" class="span12" value="ORELIA" type="text" data-role="none"></div>
+	  			<div class="span12"><select name="" class="span12" data-role="none" id="reason_desc_editable">			
+					</select></div>
 			</div>
 	   </div>	   
    </div>
    <div class="row-fluid">	
 	   <div class="span10 offset1 checkno3">
-	   		Check Address: <span>10</span>
+	   		Check Address: <span id="query_confirmation_count">0</span>
 	   </div>	   
    </div>
    <div class="row-fluid">	
-	   <div class="span5 offset1 input_bg" id="check_submit_btn">
+	   <div class="span5 offset1 input_bg" id="check_submit_btn" onClick="query_confirmation_action()">
 	   		<div class="row-fluid">
 	  			<div class="span12"><input name="" class="span12 login_btn" value="OK" type="button" data-role="none"></div>
 			</div>
