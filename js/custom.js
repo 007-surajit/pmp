@@ -1,4 +1,23 @@
 var queryList = new Array();
+var checkDataCron = false;
+var auditListRequestInProgress = false;
+var queryListRequestInProgress = false;
+var outstandingListRequestInProgress = false;
+var savingAuditListDataToDb = false;
+var savingQueryListDataToDb = false;
+var savingOutstandingListDataToDb = false;
+var savingDeliveryChecksDataToDb = false;
+var savingQuerySubmitDataToDb = false;
+var localDatabaseInstance = false;
+var serviceResponseForAuditList = "";
+var serviceResponseForQuery = "";
+var serviceResponseForOutstandingJobs = "";
+var checkNewDataRequestInProgress = false;
+var submittedChecks = [];
+var submittedQueries = [];
+var submitDeliveryChecksCron = false; 
+var submitQueriesCron = false;
+
 function goTo(page)
 {
 	//alert(page);
@@ -120,15 +139,283 @@ function onDeviceReady() {
 	/*navigator.geolocation.getCurrentPosition(function(position){alert('Latitude: '+ position.coords.latitude+'Longitude: '+ position.coords.longitude);}, function(error){ alert('code: '    + error.code    + '\n' +
           'message: ' + error.message + '\n');
 });*/
+    showLoader();
 	localStorage.setItem("location_error","location timeout");
 	
-	var options = { timeout: 10000 , maximumAge: 35000 , enableHighAccuracy: true};
+	var options = { timeout: 60000 , maximumAge: 3000 , enableHighAccuracy: true};
     //watchID = navigator.geolocation.watchPosition(onGeolocationSuccess, onGeolocationError, options);
 	navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onGeolocationError, options);
 
 	//navigator.notification.alert("Unique identifier "+device.uuid, null, 'PMP', 'Ok');
-	 localStorage.setItem("unique_identifier",device.uuid);	 
+	 localStorage.setItem("unique_identifier",device.uuid);
+	 
+	 if(localDatabaseInstance == false) {
+		localDatabaseInstance = openDatabase("PMP Database", "1.0", "PMP Database", 200000);
+	 }
+    
 }
+
+function checkNewDataFromServer()
+{
+	if(localStorage.getItem("dist_nr") != null && checkNewDataRequestInProgress == false) {
+	    checkNewDataRequestInProgress = true;
+		$.ajax({
+		  url: "https://support.mobiliseit.com/PMP/PDAservice.asmx/GetAnchor?dist_nr="+localStorage.getItem("dist_nr"),
+		  timeout: 60000 ,
+		  dataType: 'json',	  
+		  success:function(data, textStatus, jqXHR)
+		  {		
+			checkNewDataRequestInProgress = false;
+			console.log(JSON.stringify(data));
+			if(localStorage.getItem("LastFromIvrTime") == null) {
+				if(auditListRequestInProgress == false) {
+					localStorage.setItem("LastFromIvrTime",data.LastFromIvrTime);
+					downloadAuditList();
+				}
+			}else {
+				if(localStorage.getItem("LastFromIvrTime") != data.LastFromIvrTime) {
+					// download audit list from server
+					if(auditListRequestInProgress == false) {
+						localStorage.setItem("LastFromIvrTime",data.LastFromIvrTime);
+						downloadAuditList();
+					}
+				}
+			}
+			if(localStorage.getItem("MaxToIvrBatch") == null) {
+				if(outstandingListRequestInProgress == false) {
+					localStorage.setItem("MaxToIvrBatch",data.MaxToIvrBatch);
+					downloadOutstandingList();
+				}
+			}else{
+				if(localStorage.getItem("MaxToIvrBatch") != data.MaxToIvrBatch) {
+					// download outstanding job list from server
+					if(outstandingListRequestInProgress == false) {
+						localStorage.setItem("MaxToIvrBatch",data.MaxToIvrBatch);
+						downloadOutstandingList();
+					}
+				}
+			}
+			if(localStorage.getItem("MaxQueryToPdarBatch") == null) {
+				if(queryListRequestInProgress == false) {
+					localStorage.setItem("MaxQueryToPdarBatch",data.MaxQueryToPdarBatch);
+					downloadQueryList();
+				}
+     		}else{
+				if(localStorage.getItem("MaxQueryToPdarBatch") != data.MaxQueryToPdarBatch) {
+					// download query list from server
+					if(queryListRequestInProgress == false) {
+						localStorage.setItem("MaxQueryToPdarBatch",data.MaxQueryToPdarBatch);
+						downloadQueryList();
+					}
+				}
+            }
+		  },
+		  error: function(jqXHR, textStatus, errorThrown)
+		  {
+			checkNewDataRequestInProgress = false;
+		  }	  
+		});
+	}
+}
+
+/*******  Query List save to Database  ******/
+
+function downloadQueryList() {
+
+	queryListRequestInProgress = true;
+	if(localStorage.getItem("dist_nr") != null) {
+		$.ajax({
+		  url: "https://support.mobiliseit.com/PMP/PDAservice.asmx/GetQueryToPdaByManager?dist_nr="+localStorage.getItem("dist_nr"),
+		  timeout: 60000 ,
+		  dataType: 'json',
+		  success:function(data, textStatus, jqXHR)
+		  {
+			queryListRequestInProgress = false;
+			serviceResponseForQuery = data.queries_to_pda;
+			if(savingQueryListDataToDb == false) {
+				savingQueryListDataToDb = true;			
+				localDatabaseInstance = openDatabase("PMP Database", "1.0", "PMP Database", 200000);
+				localDatabaseInstance.transaction(dropQueryTable, function(){savingQueryListDataToDb = false}, dropQueryTableComplete);
+			}
+		  },
+		  error: function(jqXHR, textStatus, errorThrown)
+		  { queryListRequestInProgress = false;}
+        });		  
+	}
+}
+
+function dropQueryTable(tx) {
+     tx.executeSql('DROP TABLE IF EXISTS QUERIES');     
+}
+
+function dropQueryTableComplete() {
+	localDatabaseInstance = openDatabase("PMP Database", "1.0", "PMP Database", 200000);
+    localDatabaseInstance.transaction(createQueryTable, function(){savingQueryListDataToDb = false}, createQueryTableComplete);
+}
+
+function createQueryTable(tx) {
+     tx.executeSql('CREATE TABLE IF NOT EXISTS QUERIES (query_nr, dist_nr, dist_net_cd, query_job_nr, query_job_desc, query_job_dtime, query_reported_dtime, query_area_details, query_type_desc, query_detail, str_nr, str_nm, str_type_cd, sub_nm, pc_cd, batch )');     
+}
+
+function createQueryTableComplete() {
+    //alert('createQueryTableComplete');
+	saveQueryListDataToDb(serviceResponseForQuery,0);
+}
+
+
+function saveQueryListDataToDb(serviceResponseForQuery,i)
+{
+	//console.log("Query List Length : " + serviceResponseForQuery.length + " i : " + i);
+    if (i < serviceResponseForQuery.length) {
+        localDatabaseInstance = openDatabase("PMP Database", "1.0", "PMP Database", 200000);
+        localDatabaseInstance.transaction(function insertUserPrefDB(tx) {
+            tx.executeSql("INSERT INTO QUERIES ( query_nr, dist_nr, dist_net_cd, query_job_nr, query_job_desc, query_job_dtime, query_reported_dtime, query_area_details, query_type_desc, query_detail, str_nr, str_nm, str_type_cd, sub_nm, pc_cd, batch) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+              [serviceResponseForQuery[i].query_nr, serviceResponseForQuery[i].dist_nr, serviceResponseForQuery[i].dist_net_cd, serviceResponseForQuery[i].query_job_nr, serviceResponseForQuery[i].query_job_desc, serviceResponseForQuery[i].query_job_dtime, serviceResponseForQuery[i].query_reported_dtime, serviceResponseForQuery[i].query_area_details, serviceResponseForQuery[i].query_type_desc, serviceResponseForQuery[i].query_detail, serviceResponseForQuery[i].str_nr, serviceResponseForQuery[i].str_nm, serviceResponseForQuery[i].str_type_cd, serviceResponseForQuery[i].sub_nm, serviceResponseForQuery[i].pc_cd, serviceResponseForQuery[i].batch],function(){},function(){savingQueryListDataToDb = false});
+        }, function(){savingQueryListDataToDb = false}, function successCB() {
+            /* Recursive Function For Inserting the State in Local Db */
+            saveQueryListDataToDb(serviceResponseForQuery, (i + 1));
+        });
+    }
+    else {
+		savingQueryListDataToDb = false;
+        serviceResponseForQuery = "";
+        console.log('Query List Inserted Successfully');		
+    }
+} 
+
+/*******  Query List save to Database  ******/
+
+/******  Outstanding Jobs List ****************/
+
+function downloadOutstandingList()
+{	
+	outstandingListRequestInProgress = true;
+	if(localStorage.getItem("dist_nr") != null) {
+		$.ajax({
+		  url: "https://support.mobiliseit.com/PMP/PDAservice.asmx/GetToIvrByManager?dist_nr="+localStorage.getItem("dist_nr"),
+		  timeout: 60000 ,
+		  dataType: 'json',
+		  success:function(data, textStatus, jqXHR)
+		  {
+			outstandingListRequestInProgress = false;
+			serviceResponseForOutstandingJobs = data.to_ivr;
+			if(savingOutstandingListDataToDb == false) {
+				savingOutstandingListDataToDb = true;			
+				localDatabaseInstance = openDatabase("PMP Database", "1.0", "PMP Database", 200000);
+				localDatabaseInstance.transaction(dropOutstandingJobsTable, function(){savingOutstandingListDataToDb = false}, dropOutstandingJobsTableComplete);
+			}
+		  },
+		  error: function(jqXHR, textStatus, errorThrown)
+		  { outstandingListRequestInProgress = false; }
+        });		  
+	}
+}
+
+function dropOutstandingJobsTable(tx) {
+     tx.executeSql('DROP TABLE IF EXISTS OUTSTANDINGJOBS');     
+}
+
+function dropOutstandingJobsTableComplete() {
+	localDatabaseInstance = openDatabase("PMP Database", "1.0", "PMP Database", 200000);
+    localDatabaseInstance.transaction(createOutstandingJobsTable, function(){savingOutstandingListDataToDb = false}, createOutstandingJobsTableComplete);
+}
+
+function createOutstandingJobsTable(tx) {
+     tx.executeSql('CREATE TABLE IF NOT EXISTS OUTSTANDINGJOBS (cont_nr, del_terr_cd, cont_inv_nr, dist_nr, first_nm, last_nm, old_cont_inv_nr, start_dtime, end_dtime, dist_net_cd, batch, area_cd )');     
+}
+
+function createOutstandingJobsTableComplete() {
+    //alert('createQueryTableComplete');
+	saveOutstandingJobsListDataToDb(serviceResponseForOutstandingJobs,0);
+}
+
+function saveOutstandingJobsListDataToDb(serviceResponseForOutstandingJobs,j)
+{
+	//console.log("Outstanding List Length : " + serviceResponseForOutstandingJobs.length + " j : " + j);
+    if (j < serviceResponseForOutstandingJobs.length) {
+        localDatabaseInstance = openDatabase("PMP Database", "1.0", "PMP Database", 200000);
+        localDatabaseInstance.transaction(function insertUserPrefDB(tx) {
+            tx.executeSql("INSERT INTO OUTSTANDINGJOBS ( cont_nr, del_terr_cd, cont_inv_nr, dist_nr, first_nm, last_nm, old_cont_inv_nr, start_dtime, end_dtime, dist_net_cd, batch, area_cd) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+              [serviceResponseForOutstandingJobs[j].cont_nr, serviceResponseForOutstandingJobs[j].del_terr_cd, serviceResponseForOutstandingJobs[j].cont_inv_nr, serviceResponseForOutstandingJobs[j].dist_nr, serviceResponseForOutstandingJobs[j].first_nm, serviceResponseForOutstandingJobs[j].last_nm, serviceResponseForOutstandingJobs[j].old_cont_inv_nr, serviceResponseForOutstandingJobs[j].start_dtime, serviceResponseForOutstandingJobs[j].end_dtime, serviceResponseForOutstandingJobs[j].dist_net_cd, serviceResponseForOutstandingJobs[j].batch, serviceResponseForOutstandingJobs[j].area_cd],function(){},function(){savingOutstandingListDataToDb = false});
+        }, function(){savingOutstandingListDataToDb = false}, function successCB() {
+            /* Recursive Function For Inserting the State in Local Db */
+            saveOutstandingJobsListDataToDb(serviceResponseForOutstandingJobs, (j + 1));
+        });
+    }
+    else {
+		savingOutstandingListDataToDb = false;
+		serviceResponseForOutstandingJobs = "";
+        console.log('Outstanding Job List Inserted Successfully');		
+    }
+}
+
+/******  Outstanding Jobs List ****************/
+
+/***************  Delivery audit List     ****************/
+
+function downloadAuditList()
+{	
+	auditListRequestInProgress = true;
+	if(localStorage.getItem("dist_nr") != null) {
+		$.ajax({
+		  url: "https://support.mobiliseit.com/PMP/PDAservice.asmx/GetFromIvrByManager?dist_nr="+localStorage.getItem("dist_nr"),
+		  timeout: 60000 ,
+		  dataType: 'json',
+		  success:function(data, textStatus, jqXHR)
+		  {
+			auditListRequestInProgress = false;
+			serviceResponseForAuditList = data.from_ivr;
+			if(savingAuditListDataToDb == false) {
+				savingAuditListDataToDb = true;			
+				localDatabaseInstance = openDatabase("PMP Database", "1.0", "PMP Database", 200000);
+				localDatabaseInstance.transaction(dropAuditListTable, function(){savingAuditListDataToDb = false}, dropAuditListTableComplete);
+			}
+		  },
+		  error: function(jqXHR, textStatus, errorThrown)
+		  { auditListRequestInProgress = false; }
+        });		  
+	}
+}
+
+function dropAuditListTable(tx) {
+     tx.executeSql('DROP TABLE IF EXISTS DELIVERY_AUDIT');     
+}
+
+function dropAuditListTableComplete() {
+	localDatabaseInstance = openDatabase("PMP Database", "1.0", "PMP Database", 200000);
+    localDatabaseInstance.transaction(createAuditListTable, function(){savingAuditListDataToDb = false}, createAuditListTableComplete);
+}
+
+function createAuditListTable(tx) {
+     tx.executeSql('CREATE TABLE IF NOT EXISTS DELIVERY_AUDIT (cont_nr, cont_inv_nr, del_terr_cd, dist_net_cd, dist_nr, ivr_serv_dtime, ivr_user_dtime, batch, DeliveryDay, DeliveryDate )');     
+}
+
+function createAuditListTableComplete() {
+    //alert('createQueryTableComplete');
+	saveAuditListDataToDb(serviceResponseForAuditList,0);
+}
+
+function saveAuditListDataToDb(serviceResponseForAuditList,k)
+{
+	//console.log("Outstanding List Length : " + serviceResponseForAuditList.length + " j : " + j);
+    if (k < serviceResponseForAuditList.length) {
+        localDatabaseInstance = openDatabase("PMP Database", "1.0", "PMP Database", 200000);
+        localDatabaseInstance.transaction(function insertUserPrefDB(tx) {
+            tx.executeSql("INSERT INTO DELIVERY_AUDIT ( cont_nr, cont_inv_nr, del_terr_cd, dist_net_cd, dist_nr, ivr_serv_dtime, ivr_user_dtime, batch, DeliveryDay, DeliveryDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ? )",
+              [serviceResponseForAuditList[k].cont_nr, serviceResponseForAuditList[k].cont_inv_nr, serviceResponseForAuditList[k].del_terr_cd, serviceResponseForAuditList[k].dist_net_cd, serviceResponseForAuditList[k].dist_nr, serviceResponseForAuditList[k].ivr_serv_dtime, serviceResponseForAuditList[k].ivr_user_dtime, serviceResponseForAuditList[k].batch, serviceResponseForAuditList[k].DeliveryDay, serviceResponseForAuditList[k].DeliveryDate],function(){},function(){savingAuditListDataToDb = false});
+        }, function(){savingAuditListDataToDb = false}, function successCB() {
+            /* Recursive Function For Inserting the State in Local Db */
+            saveAuditListDataToDb(serviceResponseForAuditList, (k + 1));
+        });
+    }
+    else {
+		savingAuditListDataToDb = false;
+		serviceResponseForAuditList = "";
+        console.log('Audit List Inserted Successfully');		
+    }
+}
+
+/***************  Delivery audit List     ****************/
 
 function checkDeviceStatus() {
 	
@@ -167,7 +454,7 @@ function checkDeviceStatus() {
 			if(!$("#check_submit_btn").hasClass("disable")) {
 				$("#check_submit_btn").addClass("disable");
 			}
-		} , {  maximumAge: 35000, timeout: 10000, enableHighAccuracy: true });				
+		} , {  maximumAge: 3000, timeout: 60000, enableHighAccuracy: true });				
 	}
 }
 
@@ -193,7 +480,13 @@ function onGeolocationSuccess(position) {
 	 //alert('Latitude: ' + position.coords.latitude + ' Longitude: ' + position.coords.longitude, null, 'PMP', 'Ok');
 	 localStorage.setItem("device_latitude",position.coords.latitude);
 	 localStorage.setItem("device_longitude",position.coords.longitude);
-     localStorage.setItem("location_error","nil");		 
+     localStorage.setItem("location_error","nil");
+	 hideLoader();
+     if(navigator.notification) {
+			navigator.notification.alert("Location determined successfully", null, 'PMP', 'Ok');
+	 }else{
+		alert("Network Connection Error "+errorThrown);
+	 }
 }
 
 // onError Callback receives a PositionError object
@@ -203,7 +496,13 @@ function onGeolocationError(error) {
 		  'message: ' + error.message + '\n');*/
     //navigator.notification.alert('code: ' + error.code    + '\n' + 'message: ' + error.message, null, 'PMP', 'Ok');
 	//alert('code: ' + error.code    + '\n' + 'message: ' + error.message, null, 'PMP', 'Ok');
-	localStorage.setItem("location_error",error.message);	
+	localStorage.setItem("location_error",error.message);
+    hideLoader();
+    if(navigator.notification) {
+			navigator.notification.alert("Location could not be determined due to "+error.message, null, 'PMP', 'Ok');
+	 }else{
+		alert("Network Connection Error "+errorThrown);
+	 }	
 }
 
 function login()
@@ -278,12 +577,16 @@ function logout()
 	if(localStorage.getItem("play_query_sound")!= null) {	
 		play_query_sound = localStorage.getItem("play_query_sound");
 	}
-	localStorage.clear();
+	setTimeout(function(){
+		localStorage.clear();
+	});
 	setTimeout(function(){
 		//document.location = "index.html";
 		localStorage.setItem("play_audit_sound",play_audit_sound);
 		localStorage.setItem("play_query_sound",play_query_sound);
 		//alert(play_audit_sound+' : '+play_query_sound);
+		clearTimeout(checkDataCron);
+		checkDataCron = false;
 		$.mobile.changePage( "index.html", { transition: "slide" , reverse : true} );
 	});
 }
@@ -332,7 +635,8 @@ function getAuditList()
 				ivr_user_dtime => current time, 
 				“deliveryday” => day name
 	*/
-	//alert(localStorage.getItem("dist_nr"));	
+	//alert(localStorage.getItem("dist_nr"));
+    auditListRequestInProgress = true;	
 	$.ajax({
 	  url: "https://support.mobiliseit.com/PMP/PDAservice.asmx/GetFromIvrByManager",
 	  type: "POST",
@@ -343,12 +647,14 @@ function getAuditList()
 	  {
 			//console.log(data.hasOwnProperty("dist_nrr"));from_ivr
 			//console.log(JSON.stringify(data));			
-			/*data= {"from_ivr":[{"cont_nr":9808236,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"N","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9806236,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"N","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9808636,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"C","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9908636,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"Q","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9918636,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"Q","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9918736,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"Q","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9918746,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"N","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9919746,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"Q","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9919746,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"N","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9919746,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"A","dist_nr":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9919746,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"C","dist_nr":3050234,"ivr_serv_dtime":moment(),"ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null}]};*/
+			data= {"from_ivr":[{"cont_nr":9808236,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"N","area_cd":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9806236,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"N","area_cd":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9808636,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"C","area_cd":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9908636,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"Q","area_cd":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9918636,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"Q","area_cd":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9918736,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"Q","area_cd":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9918746,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"N","area_cd":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9919746,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"Q","area_cd":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9919746,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"N","area_cd":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9919746,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"A","area_cd":3050234,"ivr_serv_dtime":"\/Date(1382487136863)\/","ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null},{"cont_nr":9919746,"cont_inv_nr":377149125,"del_terr_cd":6,"dist_net_cd":"C","area_cd":3050234,"ivr_serv_dtime":moment(),"ivr_user_dtime":null,"batch":69705,"DeliveryDay":null,"DeliveryDate":null}]};
+			auditListRequestInProgress = false;	 
 			auditSuccess(data);
       },
       error: function(jqXHR, textStatus, errorThrown)	  
       {
             //if fails
+		auditListRequestInProgress = false;
 		hideLoader();
 		if(navigator.notification) {
 			navigator.notification.alert("Network Connection Error "+errorThrown, function(){history.back()}, 'Delivery Audit', 'Ok');
@@ -359,7 +665,8 @@ function getAuditList()
 	});	
 }
 
-function auditSuccess(data) {
+function auditSuccess(data) 
+{
     var selectAreaList = new Array();
 	if(data.from_ivr.length)
 	{	
@@ -462,7 +769,7 @@ function auditSuccess(data) {
 function deliveryCheck(walker_no,cw,dt,area,dist_net)
 {
 		
-	//console.log(walker_no+'-'+cw+'-'+dt+'-'+area);	
+	//console.log(walker_no+'-'+cw+'-'+dt+'-'+area+'-'+dist_net);	
 	localStorage.setItem("AUDIT_WALKER_NO",walker_no);
 	localStorage.setItem("AUDIT_CW",cw);	
 	localStorage.setItem("AUDIT_DT",dt);
@@ -530,7 +837,7 @@ function delivery_confirmation_action() {
 			}, function(error){
 				hideLoader();
 				navigator.notification.alert("Could not retrieve current location due to "+error.message, null, 'Delivery Checks', 'Ok');
-			} , {  maximumAge: 35000, timeout: 10000, enableHighAccuracy: true });
+			} , {  maximumAge: 3000, timeout: 10000, enableHighAccuracy: true });
 			
 		}else{
 			/*if(navigator.notification) {
@@ -565,17 +872,19 @@ function submitDeliveryConfirmation()
 	//console.log(UTCstring);9774d56d682e549c	
 	//var dt = {"Count" : "1"};	
 	//alert(dt.Count);	
-	//console.log(JSON.stringify(deliveryCheckConfirmations));	
+	//console.log(JSON.stringify(deliveryCheckConfirmations));
+    //storeDeliveryConfirmation();	
 	if(deliveryCheckConfirmations.length > 0) {		
 		$.ajax({
 		  url: "https://support.mobiliseit.com/PMP/PDAservice.asmx/SubmitDeliveryConfirmation",
 		  type: "POST",
 		  timeout: 60000 ,
-		  data: deliveryCheckConfirmations.shift(),
+		  data: deliveryCheckConfirmations[0],
 		  success:function(data, textStatus, jqXHR)
 		  {		
 			//success callback			
 			//alert('Delivery Checks success'+data.Count);
+			deliveryCheckConfirmations.shift();
 			if(deliveryCheckConfirmations.length == 0) {
 				hideLoader();
 				goBack('delivery_audit');
@@ -585,7 +894,7 @@ function submitDeliveryConfirmation()
 		  },
 		  error: function(jqXHR, textStatus, errorThrown)
 		  {
-			 hideLoader();
+			 //hideLoader();
 			 storeDeliveryConfirmation();			
 		   }	  
 		});	
@@ -595,10 +904,135 @@ function submitDeliveryConfirmation()
 	}
 }
 
+/***************** Offline implementation for Delivery Checks ****************/
+
 function storeDeliveryConfirmation()
 {
-
+	console.log(JSON.stringify(deliveryCheckConfirmations));
+	if(savingDeliveryChecksDataToDb == false) {
+		savingDeliveryChecksDataToDb = true;			
+		localDatabaseInstance = openDatabase("PMP Database", "1.0", "PMP Database", 200000);
+		localDatabaseInstance.transaction(createDeliveryChecksTable, function(){savingDeliveryChecksDataToDb = false}, createDeliveryChecksTableComplete);
+	}
 }
+
+function createDeliveryChecksTable(tx) {
+	 //tx.executeSql('DROP TABLE IF EXISTS QUERIES');
+	 //tx.executeSql('DROP TABLE IF EXISTS OUTSTANDINGJOBS');
+	 //tx.executeSql('DROP TABLE IF EXISTS DELIVERY_AUDIT');
+	 //tx.executeSql('DROP TABLE IF EXISTS DELIVERYCHECKS');
+	 //tx.executeSql('DROP TABLE IF EXISTS DELIVERY_CHECKS');
+	 tx.executeSql('CREATE TABLE IF NOT EXISTS DELIVERYCHECKS (fromPdaId, imei, distNr, distName, deviceTime, utcTime, distNetCode, contInvNr, delTerrCd, latitude, longitude )');     
+}
+
+function createDeliveryChecksTableComplete() {
+    //alert('createQueryTableComplete');
+	saveDeliveryChecksDataToDb(deliveryCheckConfirmations,0);
+}
+
+function saveDeliveryChecksDataToDb(deliveryCheckConfirmations,l)
+{
+	
+    //console.log(deliveryCheckConfirmations[k].fromPdaId);
+	if (l < deliveryCheckConfirmations.length) {
+		console.log("deliveryCheckConfirmations Length : " + deliveryCheckConfirmations.length + " l : " + l);
+        localDatabaseInstance = openDatabase("PMP Database", "1.0", "PMP Database", 200000);
+        localDatabaseInstance.transaction(function insertUserPrefDB(tx) {
+            tx.executeSql("INSERT INTO DELIVERYCHECKS (fromPdaId, imei, distNr, distName, deviceTime, utcTime, distNetCode, contInvNr, delTerrCd, latitude, longitude ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )",
+              [deliveryCheckConfirmations[l].fromPdaId, deliveryCheckConfirmations[l].imei, deliveryCheckConfirmations[l].distNr, deliveryCheckConfirmations[l].distName, deliveryCheckConfirmations[l].deviceTime, deliveryCheckConfirmations[l].utcTime, deliveryCheckConfirmations[l].distNetCode, deliveryCheckConfirmations[l].contInvNr, deliveryCheckConfirmations[l].delTerrCd, deliveryCheckConfirmations[l].latitude,deliveryCheckConfirmations[l].longitude],function(){},function(err){
+			  console.log("Error processing SQL: "+err.code+' '+err.message);
+			  savingDeliveryChecksDataToDb = false});
+        }, function(err){console.log("Error processing SQL: "+err.code+' '+err.message);savingDeliveryChecksDataToDb = false}, function successCB() {
+            /* Recursive Function For Inserting the State in Local Db */
+            saveDeliveryChecksDataToDb(deliveryCheckConfirmations, (l + 1));
+        });
+    }
+    else {
+		savingDeliveryChecksDataToDb = false;
+		deliveryCheckConfirmations = "";
+        console.log('Delivery checks saved Successfully');
+		//prepareSavedDeliveryChecksSubmit();
+		hideLoader();
+		goBack('delivery_audit');
+    }
+}
+
+function prepareSavedDeliveryChecksSubmit()
+{
+	if(navigator.connection) {		
+		var networkState = navigator.connection.type;			 
+		if(networkState != Connection.NONE) {	 
+			localDatabaseInstance = openDatabase("PMP Database", "1.0", "PMP Database", 200000);
+			localDatabaseInstance.transaction(querySavedDeliveryChecks, function(err){console.log("Error processing SQL: "+err.code+' '+err.message)});
+		}
+	}	
+}
+
+function querySavedDeliveryChecks(tx) {
+        tx.executeSql('SELECT * FROM DELIVERYCHECKS', [], submitSavedDeliveryChecks, function(err){console.log("Error processing SQL: "+err.code+' '+err.message)});
+}
+
+function submitSavedDeliveryChecks(tx, results) {
+	var len = results.rows.length;
+    console.log("DEMO table: " + len + " rows found.");
+	if(len > 0) {
+		submittedChecks = [];
+	    startSubmittingChecks(results,0);
+	}	
+}
+
+function startSubmittingChecks(results,counter)
+{
+	if(counter < results.rows.length){
+		var tempObj = new deliveryCheckObject(results.rows.item(counter).fromPdaId, results.rows.item(counter).imei, results.rows.item(counter).distNr, results.rows.item(counter).distName,results.rows.item(counter).deviceTime,results.rows.item(counter).utcTime,results.rows.item(counter).distNetCode,results.rows.item(counter).contInvNr,results.rows.item(counter).delTerrCd,results.rows.item(counter).latitude,results.rows.item(counter).longitude);
+		//console.log(tempObj);
+		$.ajax({
+		  url: "https://support.mobiliseit.com/PMP/PDAservice.asmx/SubmitDeliveryConfirmation",
+		  type: "POST",
+		  timeout: 60000 ,
+		  data: tempObj,
+		  success:function(data, textStatus, jqXHR)
+		  {		
+			submittedChecks.push(results.rows.item(counter).fromPdaId);	
+			setTimeout(function(){startSubmittingChecks(results,(counter+1))});					
+		  },
+		  error: function(jqXHR, textStatus, errorThrown)
+		  {				
+			//submittedChecks.push(results.rows.item(counter).fromPdaId);	
+			setTimeout(function(){startSubmittingChecks(results,(counter+1))});				
+		  }	  
+	   });
+   }else{
+		removeSubmitedChecks();
+   }
+}
+
+function removeSubmitedChecks()
+{
+	localDatabaseInstance = openDatabase("PMP Database", "1.0", "PMP Database", 200000);	
+	localDatabaseInstance.transaction(queryRemoveSubmittedDeliveryChecks, function(err){console.log("Error processing SQL: "+err.code+' '+err.message)}, function(){});
+}
+
+function queryRemoveSubmittedDeliveryChecks(tx) {
+    var joinedItems = "";
+	for(i = 0;i < submittedChecks.length ; i++)
+	{
+		if(i == submittedChecks.length-1) {
+			joinedItems += "'"+submittedChecks[i]+"'";
+		}else{
+			joinedItems += "'"+submittedChecks[i]+"',";
+		}
+		
+	}
+	//console.log(joinedItems);
+    sql = "DELETE FROM DELIVERYCHECKS WHERE fromPdaId IN ("+joinedItems+")";
+	//console.log(sql);
+	tx.executeSql(sql);     
+}
+
+
+/********* Offline implementation for Delivery Checks ****************/
+
 
 function delivery_check_back() {
    
@@ -630,7 +1064,7 @@ function delivery_check_back() {
 	}else{
 	  navigator.geolocation.getCurrentPosition(submitDeliveryConfirmation, function(error){			
 		navigator.notification.alert("Could not retreive current location due to "+error.message, null, 'Delivery Checks', 'Ok');
-	  } , {  maximumAge: 35000, timeout: 10000, enableHighAccuracy: true });
+	  } , {  maximumAge: 3000, timeout: 10000, enableHighAccuracy: true });
 	}
 	//submitDeliveryConfirmation(1);
 }
@@ -645,7 +1079,7 @@ function getOutstandingJobs()
 	showLoader();
 		
 	var selectAreaList = new Array();
-	
+	outstandingListRequestInProgress = true;
 	$.ajax({
 	  url: "https://support.mobiliseit.com/PMP/PDAservice.asmx/GetToIvrByManager",
 	  type: "POST",
@@ -657,7 +1091,7 @@ function getOutstandingJobs()
 			//console.log(data.hasOwnProperty("dist_nrr"));from_ivr
 			
 			/*data = {"to_ivr":[{"cont_nr":2203242,"del_terr_cd":90,"cont_inv_nr":377147913,"dist_nr":2203247,"first_nm":"Sergio","last_nm":"Rossi","old_cont_inv_nr":null,"start_dtime":"\/Date(1382360400000)\/","end_dtime":"\/Date(1382446800000)\/","dist_net_cd":"C","batch":179494,"area_cd":290},{"cont_nr":7203242,"del_terr_cd":90,"cont_inv_nr":377147913,"dist_nr":2203247,"first_nm":"Sergio","last_nm":"Rossi","old_cont_inv_nr":null,"start_dtime":"\/Date(1382360400000)\/","end_dtime":"\/Date(1382446800000)\/","dist_net_cd":"C","batch":179494,"area_cd":290},{"cont_nr":7203242,"del_terr_cd":90,"cont_inv_nr":377147913,"dist_nr":2203247,"first_nm":"Sergio","last_nm":"Rossi","old_cont_inv_nr":null,"start_dtime":"\/Date(1382360400000)\/","end_dtime":"\/Date(1382446800000)\/","dist_net_cd":"C","batch":179494,"area_cd":290},{"cont_nr":7203242,"del_terr_cd":90,"cont_inv_nr":377147913,"dist_nr":2203247,"first_nm":"Sergio","last_nm":"Rossi","old_cont_inv_nr":null,"start_dtime":"\/Date(1382360400000)\/","end_dtime":"\/Date(1382446800000)\/","dist_net_cd":"C","batch":179494,"area_cd":290},{"cont_nr":7203242,"del_terr_cd":90,"cont_inv_nr":377147913,"dist_nr":2203247,"first_nm":"Sergio","last_nm":"Rossi","old_cont_inv_nr":null,"start_dtime":"\/Date(1382360400000)\/","end_dtime":"\/Date(1382446800000)\/","dist_net_cd":"C","batch":179494,"area_cd":290},{"cont_nr":7203242,"del_terr_cd":90,"cont_inv_nr":377147913,"dist_nr":2203247,"first_nm":"Sergio","last_nm":"Rossi","old_cont_inv_nr":null,"start_dtime":"\/Date(1382360400000)\/","end_dtime":"\/Date(1382446800000)\/","dist_net_cd":"C","batch":179494,"area_cd":290}]};*/
-			
+			outstandingListRequestInProgress = false;
 			if(data.to_ivr && data.to_ivr.length)
 			{
 				var outstanding_jobs_template = $("#outstanding_jobs_template").html();
@@ -692,7 +1126,8 @@ function getOutstandingJobs()
 				//console.log(selectAreaList);				
 				//console.log('Local Storage '+localStorage.getItem("selectAreaList"));
 				
-			}else {	
+			}else {
+				outstandingListRequestInProgress = false;
                 hideLoader();			
 				if(navigator.notification) {
 					navigator.notification.alert("No Data found", function(){goBack('menu')}, 'Outstanding Jobs', 'Ok');
@@ -781,7 +1216,7 @@ function getQueryList()
 	var selectAreaList = new Array();
 	
 	queryList = [];
-	
+	queryListRequestInProgress = true;
 	$.ajax({
 	  url: "https://support.mobiliseit.com/PMP/PDAservice.asmx/GetQueryToPdaByManager",
 	  type: "POST",
@@ -792,8 +1227,8 @@ function getQueryList()
       {
 			//console.log(data.hasOwnProperty("dist_nrr"));from_ivr	
 	
-			/*data = {"queries_to_pda":[{"query_nr":728335,"dist_nr":3050234,"dist_net_cd":"N","query_job_nr":721795,"query_job_desc":"Job 721795 HOBSONS BAY LEADER [08 Oct 2013 to 09 Oct 2013] for 10 Oct 2013","query_job_dtime":"\/Date(1381064400000)\/","query_reported_dtime":"\/Date(1381804613240)\/","query_area_details":"159/24","query_type_desc":"Non delivery","query_detail":"no delivery for 3 years -|- Please investigate and respond within 72 hours. Thanks.","str_nr":"11/76","str_nm":"POINT COOK","str_type_cd":"RD","sub_nm":"SEABROOK","pc_cd":"3028","batch":141007},{"query_nr":728335,"dist_nr":3050234,"dist_net_cd":"N","query_job_nr":721795,"query_job_desc":"Job 721795 HOBSONS BAY LEADER [08 Oct 2013 to 09 Oct 2013] for 10 Oct 2013","query_job_dtime":"\/Date(1381064400000)\/","query_reported_dtime":"\/Date(1381804613240)\/","query_area_details":"159/24","query_type_desc":"Non delivery","query_detail":"no delivery for 3 years -|- Please investigate and respond within 72 hours. Thanks.","str_nr":"11/76","str_nm":"POINT COOK","str_type_cd":"RD","sub_nm":"SEABROOK","pc_cd":"3028","batch":141007},{"query_nr":728335,"dist_nr":3050234,"dist_net_cd":"N","query_job_nr":721795,"query_job_desc":"Job 721795 HOBSONS BAY LEADER [08 Oct 2013 to 09 Oct 2013] for 10 Oct 2013","query_job_dtime":"\/Date(1381064400000)\/","query_reported_dtime":"\/Date(1381804613240)\/","query_area_details":"159/24","query_type_desc":"Non delivery","query_detail":"no delivery for 3 years -|- Please investigate and respond within 72 hours. Thanks.","str_nr":"11/76","str_nm":"POINT COOK","str_type_cd":"RD","sub_nm":"SEABROOK","pc_cd":"3028","batch":141007},{"query_nr":728335,"dist_nr":3050234,"dist_net_cd":"N","query_job_nr":721795,"query_job_desc":"Job 721795 HOBSONS BAY LEADER [08 Oct 2013 to 09 Oct 2013] for 10 Oct 2013","query_job_dtime":"\/Date(1381064400000)\/","query_reported_dtime":"\/Date(1381804613240)\/","query_area_details":"159/24","query_type_desc":"Non delivery","query_detail":"no delivery for 3 years -|- Please investigate and respond within 72 hours. Thanks.","str_nr":"11/76","str_nm":"POINT COOK","str_type_cd":"RD","sub_nm":"SEABROOK","pc_cd":"3028","batch":141007}]};*/			
-			
+			data = {"queries_to_pda":[{"query_nr":728335,"dist_nr":3050234,"dist_net_cd":"N","query_job_nr":721795,"query_job_desc":"Job 721795 HOBSONS BAY LEADER [08 Oct 2013 to 09 Oct 2013] for 10 Oct 2013","query_job_dtime":"\/Date(1381064400000)\/","query_reported_dtime":"\/Date(1381804613240)\/","query_area_details":"159/24","query_type_desc":"Non delivery","query_detail":"no delivery for 3 years -|- Please investigate and respond within 72 hours. Thanks.","str_nr":"11/76","str_nm":"POINT COOK","str_type_cd":"RD","sub_nm":"SEABROOK","pc_cd":"3028","batch":141007},{"query_nr":728335,"dist_nr":3050234,"dist_net_cd":"N","query_job_nr":721795,"query_job_desc":"Job 721795 HOBSONS BAY LEADER [08 Oct 2013 to 09 Oct 2013] for 10 Oct 2013","query_job_dtime":"\/Date(1381064400000)\/","query_reported_dtime":"\/Date(1381804613240)\/","query_area_details":"159/24","query_type_desc":"Non delivery","query_detail":"no delivery for 3 years -|- Please investigate and respond within 72 hours. Thanks.","str_nr":"11/76","str_nm":"POINT COOK","str_type_cd":"RD","sub_nm":"SEABROOK","pc_cd":"3028","batch":141007},{"query_nr":728335,"dist_nr":3050234,"dist_net_cd":"N","query_job_nr":721795,"query_job_desc":"Job 721795 HOBSONS BAY LEADER [08 Oct 2013 to 09 Oct 2013] for 10 Oct 2013","query_job_dtime":"\/Date(1381064400000)\/","query_reported_dtime":"\/Date(1381804613240)\/","query_area_details":"159/24","query_type_desc":"Non delivery","query_detail":"no delivery for 3 years -|- Please investigate and respond within 72 hours. Thanks.","str_nr":"11/76","str_nm":"POINT COOK","str_type_cd":"RD","sub_nm":"SEABROOK","pc_cd":"3028","batch":141007},{"query_nr":728335,"dist_nr":3050234,"dist_net_cd":"N","query_job_nr":721795,"query_job_desc":"Job 721795 HOBSONS BAY LEADER [08 Oct 2013 to 09 Oct 2013] for 10 Oct 2013","query_job_dtime":"\/Date(1381064400000)\/","query_reported_dtime":"\/Date(1381804613240)\/","query_area_details":"159/24","query_type_desc":"Non delivery","query_detail":"no delivery for 3 years -|- Please investigate and respond within 72 hours. Thanks.","str_nr":"11/76","str_nm":"POINT COOK","str_type_cd":"RD","sub_nm":"SEABROOK","pc_cd":"3028","batch":141007}]};			
+			queryListRequestInProgress = false;
 			if(data.queries_to_pda && data.queries_to_pda.length)
 			{				
 				queryList = data;				
@@ -830,11 +1265,12 @@ function getQueryList()
 					}					
 					//tempHTML = tempHTML.replace(/{{DEL_TERR_CD}}/gi, query.del_terr_cd);					
 				});
-                $("#query_count").html(queryCount);				
+                $("#query_count").html("("+queryCount+")");				
 				$("#query_content").html( html );
 				hideLoader();
 				
-			}else {	
+			}else {
+				queryListRequestInProgress = false;
                 hideLoader();			
 				if(navigator.notification) {
 					navigator.notification.alert("No Data found", function(){goBack('menu')}, 'Query Inbox', 'Ok');
@@ -913,7 +1349,7 @@ function query_confirmation_action() {
 			}, function(error){
 				hideLoader();
 				navigator.notification.alert("Could not retrieve current location due to "+error.message, null, 'Delivery Checks', 'Ok');
-			} , {  maximumAge: 35000, timeout: 10000, enableHighAccuracy: true });
+			} , {  maximumAge: 3000, timeout: 10000, enableHighAccuracy: true });
 			
 		}else{
 			/*if(navigator.notification) {
@@ -940,17 +1376,21 @@ function query_confirmation_action() {
 function submitQueryInformation()
 {
 	showLoader();
-	console.log(JSON.stringify(queryConfirmations));
+	//console.log(JSON.stringify(queryConfirmations));
+	for (var i=0; i<queryConfirmations.length; i++) {
+	  queryConfirmations[i].distComments = $("#query_comment_desc").val();		
+	}
 	if(queryConfirmations.length > 0) {		
 		$.ajax({
 		  url: "https://support.mobiliseit.com/PMP/PDAservice.asmx/SubmitQuery",
 		  type: "POST",
 		  timeout: 60000 ,
-		  data: queryConfirmations.shift(),
+		  data: queryConfirmations[0],
 		  success:function(data, textStatus, jqXHR)
 		  {		
 			//success callback			
 			//alert('Delivery Checks success'+data.Count);
+			queryConfirmations.shift();
 			if(queryConfirmations.length == 0) {
 				hideLoader();
 				//goBack('delivery_audit');
@@ -961,14 +1401,140 @@ function submitQueryInformation()
 		  },
 		  error: function(jqXHR, textStatus, errorThrown)
 		  {
-			 hideLoader();
-			 //storeDeliveryConfirmation();			
+			 //hideLoader();
+			 storeFailedQuerySubmit();			
 		   }	  
 		});	
 	}else{
 		hideLoader();
 		goTo('Query');
 	}
+}
+
+function storeFailedQuerySubmit()
+{
+	console.log(JSON.stringify(queryConfirmations));
+	if(savingQuerySubmitDataToDb == false) {
+		savingQuerySubmitDataToDb = true;			
+		localDatabaseInstance = openDatabase("PMP Database", "1.0", "PMP Database", 200000);
+		localDatabaseInstance.transaction(createQuerySubmitTable, function(){savingQuerySubmitDataToDb = false}, createQuerySubmitTableComplete);
+	}
+}
+
+function createQuerySubmitTable(tx) {
+	 //tx.executeSql('DROP TABLE IF EXISTS QUERIES');
+	 //tx.executeSql('DROP TABLE IF EXISTS OUTSTANDINGJOBS');
+	 //tx.executeSql('DROP TABLE IF EXISTS DELIVERY_AUDIT');
+	 //tx.executeSql('DROP TABLE IF EXISTS QUERYSUBMIT');
+	 //tx.executeSql('DROP TABLE IF EXISTS DELIVERY_CHECKS');
+	 tx.executeSql('CREATE TABLE IF NOT EXISTS QUERYSUBMIT (queryFromPdaId, queryNr, deviceDateTime, utcTime, reasonTypeDesc, distComments, strNr, strNm, strTypeCd, subNm, pcCd, latitude, longitude)');  
+}
+
+function createQuerySubmitTableComplete() {
+    //alert('createQueryTableComplete');
+	saveQuerySubmitDataToDb(queryConfirmations,0);
+}
+
+function saveQuerySubmitDataToDb(queryConfirmations,l)
+{
+    //console.log(queryConfirmations[k].fromPdaId);
+	if (l < queryConfirmations.length) {
+		console.log("queryConfirmations Length : " + queryConfirmations.length + " l : " + l);
+        localDatabaseInstance = openDatabase("PMP Database", "1.0", "PMP Database", 200000);
+        localDatabaseInstance.transaction(function insertUserPrefDB(tx) {
+            tx.executeSql("INSERT INTO QUERYSUBMIT (queryFromPdaId, queryNr, deviceDateTime, utcTime, reasonTypeDesc, distComments, strNr, strNm, strTypeCd, subNm, pcCd, latitude, longitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,? ,? )",
+              [queryConfirmations[l].queryFromPdaId, queryConfirmations[l].queryNr, queryConfirmations[l].deviceDateTime, queryConfirmations[l].utcTime, queryConfirmations[l].reasonTypeDesc, queryConfirmations[l].distComments, queryConfirmations[l].strNr, queryConfirmations[l].strNm, queryConfirmations[l].strTypeCd, queryConfirmations[l].subNm,queryConfirmations[l].pcCd, queryConfirmations[l].latitude, queryConfirmations[l].longitude],function(){},function(err){
+			  console.log("Error processing SQL: "+err.code+' '+err.message);
+			  savingQuerySubmitDataToDb = false});
+        }, function(err){console.log("Error processing SQL: "+err.code+' '+err.message);savingQuerySubmitDataToDb = false}, function successCB() {
+            /* Recursive Function For Inserting the State in Local Db */
+            saveQuerySubmitDataToDb(queryConfirmations, (l + 1));
+        });
+    }
+    else {
+		savingQuerySubmitDataToDb = false;
+		queryConfirmations = "";
+        console.log('Query Submits saved Successfully');
+	    //prepareSavedQueriesSubmit();
+		hideLoader();
+		goTo('Query');
+    }
+}
+
+function prepareSavedQueriesSubmit()
+{
+	if(navigator.connection) {		
+		var networkState = navigator.connection.type;			 
+		if(networkState != Connection.NONE) {	 
+			localDatabaseInstance = openDatabase("PMP Database", "1.0", "PMP Database", 200000);
+			localDatabaseInstance.transaction(querySavedQueries, function(err){console.log("Error processing SQL: "+err.code+' '+err.message)});
+		}
+	}
+}
+
+function querySavedQueries(tx) {
+        tx.executeSql('SELECT * FROM QUERYSUBMIT', [], submitSavedQueries, function(err){console.log("Error processing SQL: "+err.code+' '+err.message)});
+}
+
+function submitSavedQueries(tx, results) {
+	var len = results.rows.length;
+    console.log("DEMO table: " + len + " rows found.");
+	if(len > 0) {
+		submittedQueries = [];
+	    startSubmittingQueries(results,0);
+	}	
+}
+
+function startSubmittingQueries(results,counter)
+{
+	if(counter < results.rows.length){
+	    /*
+		[queryConfirmations[l].queryFromPdaId, queryConfirmations[l].queryNr, queryConfirmations[l].deviceDateTime, queryConfirmations[l].utcTime, queryConfirmations[l].reasonTypeDesc, queryConfirmations[l].distComments, queryConfirmations[l].strNr, queryConfirmations[l].strNm, queryConfirmations[l].strTypeCd, queryConfirmations[l].subNm,queryConfirmations[l].pcCd, queryConfirmations[l].latitude, queryConfirmations[l].longitude		
+		*/
+		var tempObj = new queryConfirmationObject(results.rows.item(counter).queryFromPdaId, results.rows.item(counter).queryNr, results.rows.item(counter).deviceDateTime, results.rows.item(counter).utcTime,results.rows.item(counter).reasonTypeDesc,results.rows.item(counter).distComments,results.rows.item(counter).strNr,results.rows.item(counter).strNm,results.rows.item(counter).strTypeCd,results.rows.item(counter).subNm,results.rows.item(counter).pcCd,results.rows.item(counter).latitude,results.rows.item(counter).longitude);
+		//console.log(tempObj);
+		$.ajax({
+		  url: "https://support.mobiliseit.com/PMP/PDAservice.asmx/SubmitQuery",
+		  type: "POST",
+		  timeout: 60000 ,
+		  data: tempObj,
+		  success:function(data, textStatus, jqXHR)
+		  {		
+			submittedQueries.push(results.rows.item(counter).queryFromPdaId);	
+			setTimeout(function(){startSubmittingQueries(results,(counter+1))});					
+		  },
+		  error: function(jqXHR, textStatus, errorThrown)
+		  {				
+			//submittedQueries.push(results.rows.item(counter).queryFromPdaId);	
+			setTimeout(function(){startSubmittingQueries(results,(counter+1))});				
+		  }	  
+	   });
+   }else{
+		removeSubmitedQueries();
+   }
+}
+
+function removeSubmitedQueries()
+{
+	localDatabaseInstance = openDatabase("PMP Database", "1.0", "PMP Database", 200000);	
+	localDatabaseInstance.transaction(queryRemoveSubmittedQueries, function(err){console.log("Error processing SQL: "+err.code+' '+err.message)}, function(){});
+}
+
+function queryRemoveSubmittedQueries(tx) {
+    var joinedItems = "";
+	for(i = 0;i < submittedQueries.length ; i++)
+	{
+		if(i == submittedQueries.length-1) {
+			joinedItems += "'"+submittedQueries[i]+"'";
+		}else{
+			joinedItems += "'"+submittedQueries[i]+"',";
+		}
+		
+	}
+	console.log(joinedItems);
+    sql = "DELETE FROM QUERYSUBMIT WHERE queryFromPdaId IN ("+joinedItems+")";
+	//console.log(sql);
+	tx.executeSql(sql);     
 }
 
 function storeQueryData(index)
@@ -1015,7 +1581,8 @@ $(document).on("pageshow", "#delivery_audit", function( event ) {
 });
 
 $(document).on("pagebeforeshow", "#delivery_check", function( event ) {
-	getAuditDetail();	
+	getAuditDetail();
+    deliveryCheckConfirmations = [];	
 });
 
 $(document).on("pageshow", "#query", function( event ) {
@@ -1069,6 +1636,10 @@ $(document).on("pageshow", "#addresscheck", function( event ) {
 
 $(document).on("pageshow", "#addition_address", function( event ) {
 	localStorage.setItem("query_confirmation_count","0");
+	// Calls the selectBoxIt method on your HTML select box
+    /*$("select").selectBoxIt({
+	   native: true
+    });*/
 	populateReasons();
 	checkDeviceStatus();
 });
@@ -1079,6 +1650,15 @@ $(document).on("pageshow", "#query_comments", function( event ) {
 
 $(document).on("pageshow", "#query_comments", function( event ) {
 	checkDeviceStatus();
+});
+
+$(document).on("pageshow", "#menu", function( event ) {
+	if(checkDataCron == false) {
+	   // Cron is not running.Restart the cron
+		checkDataCron = setInterval(checkNewDataFromServer,5000);
+		submitDeliveryChecksCron = setInterval(prepareSavedDeliveryChecksSubmit,5000);
+		submitQueriesCron = setInterval(prepareSavedQueriesSubmit,5000);				
+	}
 });
 
 function loadPreferences() {
