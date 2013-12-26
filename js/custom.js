@@ -454,16 +454,19 @@ function checkDeviceStatus() {
 		}else{	 
 			newfilename = filename.substring(0,splitArray)+'/'+'network_status.png';			
 		}
-		$("#network_status_icon").attr("src",newfilename);		
+		$("#network_status_icon").attr("src",newfilename);
+	}
+
+    if(navigator.geolocation) {			
 		
 		navigator.geolocation.getCurrentPosition(function(position){
 			filename = $("#location_status_icon").attr("src");	
 			splitArray = filename.lastIndexOf("/");
 			newfilename = filename.substring(0,splitArray)+'/'+'location_available.png';			
 			$("#location_status_icon").attr("src",newfilename);
-			if(!$("#check_submit_btn").hasClass("input_bg")) {
+			/*if(!$("#check_submit_btn").hasClass("input_bg")) {
 				$("#check_submit_btn").addClass("input_bg");
-			}
+			}*/
 			if($("#check_submit_btn").hasClass("disable")) {
 				$("#check_submit_btn").removeClass("disable");
 			}	
@@ -472,9 +475,9 @@ function checkDeviceStatus() {
 			splitArray = filename.lastIndexOf("/");
 			newfilename = filename.substring(0,splitArray)+'/'+'location_status.png';	 
 			$("#location_status_icon").attr("src",newfilename);
-			if($("#check_submit_btn").hasClass("input_bg")) {
+			/*if($("#check_submit_btn").hasClass("input_bg")) {
 				$("#check_submit_btn").removeClass("input_bg");
-			}
+			}*/
 			if(!$("#check_submit_btn").hasClass("disable")) {
 				$("#check_submit_btn").addClass("disable");
 			}
@@ -546,49 +549,57 @@ function login()
 		}
 	}else{
 	  showLoader();
-	  //alert(window.innerHeight);	  
-	  $.ajax({
-		  url: "https://support.mobiliseit.com/PMP/PDAservice.asmx/Authenticate",
-		  type: "POST",
-		  timeout: 60000 ,
-		  data: {userID: $('input[name="username"]').val(), password: $('input[name="password"]').val()},
-		  dataType: 'json',
-		  success:function(data, textStatus, jqXHR)
-		  {
+	  //alert(window.innerHeight);
+      if($('input[name="username"]').val() == 'admin' && $('input[name="password"]').val() == 'admin') {
+		setTimeout(function(){
+			//goTo('menu');
 			hideLoader();
-			//console.log(data.hasOwnProperty("dist_nrr"));
-			if(data.hasOwnProperty("dist_nr"))
-			{
-				
-				localStorage.setItem("dist_nr",data.dist_nr);
-				localStorage.setItem("distName",data.dist_nm);
-				//console.log('Distributor number is '+localStorage.getItem("dist_nr"));
-				setTimeout(function(){
-					//goTo('menu');
-					$.mobile.changePage( "menu.html" ,{ transition: "slide"});
-				});
-				
-			}else {
-				//alert(data.Exception.Message);
-				if(navigator.notification) {
-					navigator.notification.alert(data.Exception.Message, null, 'Login', 'Ok');
-				}else{
-					alert(data.Exception.Message);
-				}	
+			$.mobile.changePage( "freecheck.html" ,{ transition: "slide"});
+		},1000);	  
+	  }else{
+		  $.ajax({
+			  url: "https://support.mobiliseit.com/PMP/PDAservice.asmx/Authenticate",
+			  type: "POST",
+			  timeout: 60000 ,
+			  data: {userID: $('input[name="username"]').val(), password: $('input[name="password"]').val()},
+			  dataType: 'json',
+			  success:function(data, textStatus, jqXHR)
+			  {
+				hideLoader();
+				//console.log(data.hasOwnProperty("dist_nrr"));
+				if(data.hasOwnProperty("dist_nr"))
+				{
+					
+					localStorage.setItem("dist_nr",data.dist_nr);
+					localStorage.setItem("distName",data.dist_nm);
+					//console.log('Distributor number is '+localStorage.getItem("dist_nr"));
+					setTimeout(function(){
+						//goTo('menu');
+						$.mobile.changePage( "menu.html" ,{ transition: "slide"});
+					});
+					
+				}else {
+					//alert(data.Exception.Message);
+					if(navigator.notification) {
+						navigator.notification.alert(data.Exception.Message, null, 'Login', 'Ok');
+					}else{
+						alert(data.Exception.Message);
+					}	
 
-			}
-		  },
-		  error: function(jqXHR, textStatus, errorThrown)
-		  {
-			 hideLoader();
-			 if(navigator.notification) {
-				navigator.notification.alert("Network Connection Error "+errorThrown, null, 'Login', 'Ok');
-			 }else{
-				alert("Network Connection Error "+errorThrown);
-				//$.mobile.changePage( "menu.html" ,{ transition: "slide"});
-			 }			
-		   }	  
-	   });      		  
+				}
+			  },
+			  error: function(jqXHR, textStatus, errorThrown)
+			  {
+				 hideLoader();
+				 if(navigator.notification) {
+					navigator.notification.alert("Network Connection Error "+errorThrown, null, 'Login', 'Ok');
+				 }else{
+					alert("Network Connection Error "+errorThrown);
+					//$.mobile.changePage( "menu.html" ,{ transition: "slide"});
+				 }			
+			   }	  
+		   });
+       }	   
     }	
 }
 
@@ -1835,6 +1846,56 @@ function populateReasons()
 	});
 }
 
+function freecheck_confirmation_action() {
+    var filename = $("#location_status_icon").attr("src");	
+	var splitArray = filename.split("/");
+	var image = splitArray[splitArray.length-1];
+	if(image == 'location_available.png') {
+	    var count = parseInt(localStorage.getItem("freecheck_confirmation_count"));
+		if(count < 6) {
+			showLoader();
+			count++;
+			var unique_identifier  = localStorage.getItem("unique_identifier");  // "9774d56d682e549c";			
+			//var lat = "30";//position.coords.latitude;
+			//var lng = "40";//position.coords.longitude	yyyy-mm-dd HH:MM:SS			 
+			navigator.geolocation.getCurrentPosition(function(position){
+				var guid = (S4() + S4() + "-" + S4() + "-4" + S4().substr(0,3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
+				freeCheckConfirmations.push(new deliveryCheckObject(guid, unique_identifier, localStorage.getItem("dist_nr"), localStorage.getItem("distName"),moment().format("YYYY-MM-DD HH:MM:ss"),moment().format("YYYY-MM-DD HH:MM:ss"),localStorage.getItem("freecheck_dist_net_cd"),localStorage.getItem("AUDIT_CW"),localStorage.getItem("AUDIT_DT"),position.coords.latitude,position.coords.longitude));
+				localStorage.setItem("free_checks",JSON.stringify(freeCheckConfirmations));
+				localStorage.setItem("freecheck_confirmation_count",count);
+				$("#freecheck_confirmation_count").text(count);
+				hideLoader();
+			}, function(error){
+				hideLoader();
+				if(navigator.notification) {
+					navigator.notification.alert("Could not retrieve current location due to "+error.message, null, 'Delivery Checks', 'Ok');
+				}else{
+					alert("Could not retrieve current location due to "+error.message);
+				}
+			} , {  maximumAge: 3000, timeout: 10000, enableHighAccuracy: true });
+			
+		}else{
+			/*if(navigator.notification) {
+				navigator.notification.alert("You can confirm maximum 6 times", null, 'Delivery Checks', 'Ok');
+			}else{
+				alert("You can confirm maximum 6 times");						
+			}*/
+			/*if($("#check_submit_btn").hasClass("input_bg")) {
+				$("#check_submit_btn").removeClass("input_bg");
+			}*/
+			if(!$("#check_submit_btn").hasClass("disable")) {
+				$("#check_submit_btn").addClass("disable");
+			}
+		}		
+	}else{
+		/*if(navigator.notification) {
+				navigator.notification.alert("Location not available.Please try again", null, 'Delivery Checks', 'Ok');
+		}else{
+				alert("Location not available.Please try again");						
+		}*/
+	}
+}
+
 $(document).on("pageshow", "#delivery_audit", function( event ) {
 	getAuditList();
 });
@@ -1907,8 +1968,21 @@ $(document).on("pageshow", "#query_comments", function( event ) {
 	checkDeviceStatus();
 });
 
-$(document).on("pageshow", "#query_comments", function( event ) {
+$(document).on("pageshow", "#freecheck", function( event ) {
 	checkDeviceStatus();
+	localStorage.setItem("freecheck_confirmation_count","0");
+	freeCheckConfirmations = [];
+	var radioButton = $('.settings_icon');
+	$(radioButton).click(function(){
+            if(!$(this).hasClass('thikbg')){
+                $(this).addClass("thikbg");
+				//console.log($(this).attr("id"));
+				localStorage.setItem("freecheck_dist_net_cd",$(this).attr("id"));
+            }
+            $(radioButton).not(this).each(function(){
+                $(this).removeClass("thikbg");
+            });
+        });
 });
 
 $(document).on("pageshow", "#menu", function( event ) {

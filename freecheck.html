@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<body>
+<div data-role="page" id="freecheck">
+<!--header-->
+<style>
+	.contentarea2{
+		padding: 0px;
+	}
+	.settings .settings_icon{
+		float: right;
+	}
+</style>
+<div class="container header2">
+    <div class="row-fluid header2_title">
+	 <img onClick="back()" src="images/back.png" class="pull-left back" alt=""> Free Check   </div>
+</div>
+<div class="contentarea1_querydetail">
+<!--header-->
+<div class="container header1">
+    <div class="row-fluid">
+	   <div class="span10 offset1 logo">
+	   		<img src="images/logo.png" alt="">
+	   </div>
+   </div>
+</div>
+
+<div class="row-fluid status_area">	
+   <div class="span5 offset1 input_bg">
+		<div class="row-fluid">
+			<div class="span12 status1"><img src="images/network_status.png" alt="" id="network_status_icon"> Network Status</div>
+		</div>
+   </div>	 
+   <div class="span5 input_bg">
+		<div class="row-fluid">
+			<div class="span12 status2 pull-right"> Location Status <img src="images/location_status.png" alt="" id="location_status_icon"></div>
+		</div>
+   </div>  
+</div>
+<!--content area-->
+<div class="container form addresscheck">
+  <div class="container contentarea2 settings"> 
+   <div class="row-fluid">	
+	   <div class="span10 offset1">
+	   		<div class="row-fluid">
+	  			<div class="span12 settings_txt">Address   <span class="settings_icon" id="A"></span> </div>
+			</div>
+			<div class="row-fluid">
+	  			<div class="span12 settings_txt">Catalogue   <span class="settings_icon thikbg" id="C"></span> </div>
+			</div>
+			<div class="row-fluid">
+	  			<div class="span12 settings_txt">News   <span class="settings_icon" id="N"></span> </div>
+			</div>
+	   </div>	   
+   </div> 
+   </div>
+   <div class="row-fluid">	
+	   <div class="span10 offset1 checkno3">
+	   		Check Addresses: <span id="freecheck_confirmation_count">0</span>
+	   </div>	   
+   </div>
+   <div class="row-fluid">	
+	   <div class="span5 offset1 input_bg disable" id="check_submit_btn" onClick="freecheck_confirmation_action()">
+	   		<div class="row-fluid">
+	  			<div class="span12"><input name="" class="span12 login_btn" value="OK" type="button" data-role="none"></div>
+			</div>
+	   </div>	 
+	   <div class="span5 input_bg" onClick="checkDeviceStatus()">
+	   		<div class="row-fluid">
+	  			<div class="span12"><input name="" class="span12 login_btn" value="Refresh" type="button" data-role="none"></div>
+			</div>
+	   </div>  
+   </div>   
+</div>
+</div>
+</div>
+</body>
+</html>
